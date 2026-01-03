@@ -97,63 +97,115 @@ if (!$isAuthenticated): ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Proxima Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #09090b;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 24px;
         }
         .login-box {
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(51, 65, 85, 0.5);
-            border-radius: 20px;
-            padding: 48px;
-            width: 420px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            background: #18181b;
+            border: 1px solid #27272a;
+            width: 400px;
+            max-width: 100%;
         }
-        .logo { text-align: center; margin-bottom: 32px; }
-        .logo h1 { font-size: 28px; color: #818cf8; margin-bottom: 8px; font-weight: 700; }
-        .logo p { color: #94a3b8; font-size: 14px; font-weight: 400; }
-        .error { background: rgba(239, 68, 68, 0.1); border: 1px solid #dc2626; border-radius: 12px; padding: 14px; margin-bottom: 24px; color: #fca5a5; font-size: 14px; }
-        .form-group { margin-bottom: 24px; }
-        label { display: block; font-size: 13px; font-weight: 600; color: #cbd5e1; margin-bottom: 8px; letter-spacing: 0.3px; }
-        input { width: 100%; padding: 14px 16px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(51, 65, 85, 0.8); border-radius: 10px; color: #e2e8f0; font-size: 14px; transition: all 0.2s; font-family: 'Inter', sans-serif; }
-        input:focus { outline: none; border-color: #818cf8; background: rgba(15, 23, 42, 0.9); }
-        .btn-login { width: 100%; background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%); color: white; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; margin-top: 8px; }
-        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(129, 140, 248, 0.4); }
+        .header {
+            padding: 32px 32px 24px;
+            border-bottom: 1px solid #27272a;
+        }
+        .brand {
+            font-size: 13px;
+            font-weight: 600;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+        .brand span { color: #22d3ee; }
+        h1 { font-size: 20px; font-weight: 600; color: #fafafa; }
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid #ef4444;
+            padding: 12px 16px;
+            margin: 24px 32px 0;
+            color: #fca5a5;
+            font-size: 13px;
+        }
+        .content { padding: 24px 32px; }
+        .form-group { margin-bottom: 20px; }
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            background: #09090b;
+            border: 1px solid #27272a;
+            color: #fafafa;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        input:focus { outline: none; border-color: #52525b; }
+        input::placeholder { color: #52525b; }
+        .footer {
+            padding: 24px 32px;
+            background: #09090b;
+            border-top: 1px solid #27272a;
+        }
+        .btn-login {
+            width: 100%;
+            background: #fafafa;
+            color: #09090b;
+            border: none;
+            padding: 12px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.15s;
+        }
+        .btn-login:hover { background: #e4e4e7; }
     </style>
 </head>
 <body>
     <div class="login-box">
-        <div class="logo">
-            <h1>⚡ Proxima</h1>
-            <p>Admin Panel</p>
+        <div class="header">
+            <div class="brand"><span>◆</span> Proxima</div>
+            <h1>Admin Login</h1>
         </div>
         
         <?php if (isset($loginError)): ?>
-            <div class="error">⚠️ <?php echo htmlspecialchars($loginError); ?></div>
+            <div class="error"><?php echo htmlspecialchars($loginError); ?></div>
         <?php endif; ?>
         
         <form method="POST">
-            <div class="form-group">
-                <label>USERNAME</label>
-                <input type="text" name="username" required autofocus>
+            <div class="content">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" required autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" required>
+                </div>
             </div>
             
-            <div class="form-group">
-                <label>PASSWORD</label>
-                <input type="password" name="password" required>
+            <div class="footer">
+                <button type="submit" name="login" class="btn-login">Sign In →</button>
             </div>
-            
-            <button type="submit" name="login" class="btn-login">
-                Sign In →
-            </button>
         </form>
     </div>
 </body>
@@ -182,9 +234,9 @@ $currentUser = $_SESSION['proxima_admin_user'];
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', sans-serif;
-            background: #0f172a;
-            color: #e2e8f0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #09090b;
+            color: #fafafa;
             overflow-x: hidden;
         }
         
@@ -193,102 +245,101 @@ $currentUser = $_SESSION['proxima_admin_user'];
             position: fixed;
             left: 0;
             top: 0;
-            width: 280px;
+            width: 260px;
             height: 100vh;
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-            border-right: 1px solid #334155;
+            background: #18181b;
+            border-right: 1px solid #27272a;
             overflow-y: auto;
             z-index: 100;
+            display: flex;
+            flex-direction: column;
         }
         .sidebar-header {
-            padding: 32px 24px;
-            border-bottom: 1px solid #334155;
+            padding: 24px 20px;
+            border-bottom: 1px solid #27272a;
         }
         .sidebar-logo {
-            font-size: 24px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #818cf8 0%, #a855f7 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-        }
-        .sidebar-subtitle {
             font-size: 13px;
-            color: #64748b;
-            font-weight: 500;
+            font-weight: 600;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .sidebar-logo span { color: #22d3ee; }
+        .sidebar-subtitle {
+            font-size: 16px;
+            color: #fafafa;
+            font-weight: 600;
         }
         
         .sidebar-section {
-            padding: 24px 16px 16px;
+            padding: 20px 12px;
+            flex: 1;
         }
         .section-title {
             font-size: 11px;
-            font-weight: 700;
-            color: #64748b;
+            font-weight: 600;
+            color: #52525b;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             padding: 0 12px 12px;
         }
         .table-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 16px;
-            margin-bottom: 4px;
-            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 2px;
             cursor: pointer;
-            transition: all 0.2s;
-            color: #cbd5e1;
+            transition: background 0.1s;
+            color: #a1a1aa;
             text-decoration: none;
         }
         .table-item:hover {
-            background: rgba(99, 102, 241, 0.1);
-            color: #818cf8;
+            background: #27272a;
+            color: #fafafa;
         }
         .table-item.active {
-            background: rgba(129, 140, 248, 0.15);
-            color: #818cf8;
-            font-weight: 600;
+            background: #27272a;
+            color: #fafafa;
         }
         .table-icon {
-            width: 32px;
-            height: 32px;
-            background: rgba(129, 140, 248, 0.1);
-            border-radius: 8px;
+            width: 28px;
+            height: 28px;
+            background: #27272a;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 14px;
         }
         .table-info {
             flex: 1;
         }
         .table-name {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
         }
         .table-meta {
             font-size: 11px;
-            color: #64748b;
-            margin-top: 2px;
+            color: #52525b;
+            font-family: 'SF Mono', Monaco, monospace;
         }
         .table-badge {
             background: rgba(34, 197, 94, 0.1);
-            color: #4ade80;
+            color: #22c55e;
             font-size: 10px;
             font-weight: 600;
-            padding: 4px 8px;
-            border-radius: 6px;
+            padding: 3px 6px;
         }
         .table-badge.pending {
             background: rgba(251, 146, 60, 0.1);
-            color: #fb923c;
+            color: #f97316;
         }
         
         .sidebar-footer {
-            padding: 16px 24px;
-            border-top: 1px solid #334155;
-            margin-top: auto;
+            padding: 16px 20px;
+            border-top: 1px solid #27272a;
         }
         .user-info {
             display: flex;
@@ -297,54 +348,57 @@ $currentUser = $_SESSION['proxima_admin_user'];
             margin-bottom: 12px;
         }
         .user-avatar {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #818cf8, #a855f7);
-            border-radius: 10px;
+            width: 36px;
+            height: 36px;
+            background: #27272a;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 16px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #fafafa;
         }
         .user-details {
             flex: 1;
         }
         .user-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: #f1f5f9;
-        }
-        .user-role {
-            font-size: 12px;
-            color: #64748b;
-        }
-        .btn-logout {
-            width: 100%;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            color: #f87171;
-            padding: 10px;
-            border-radius: 8px;
             font-size: 13px;
             font-weight: 600;
+            color: #fafafa;
+        }
+        .user-role {
+            font-size: 11px;
+            color: #52525b;
+        }
+        .btn-logout {
+            display: block;
+            width: 100%;
+            background: #27272a;
+            border: none;
+            color: #a1a1aa;
+            padding: 10px;
+            font-size: 12px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            text-align: center;
+            text-decoration: none;
+            transition: background 0.1s;
         }
         .btn-logout:hover {
-            background: rgba(239, 68, 68, 0.2);
+            background: #3f3f46;
+            color: #ef4444;
         }
         
         /* Main Content */
         .main-content {
-            margin-left: 280px;
+            margin-left: 260px;
             min-height: 100vh;
+            background: #09090b;
         }
         .topbar {
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #334155;
-            padding: 20px 40px;
+            background: #18181b;
+            border-bottom: 1px solid #27272a;
+            padding: 16px 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -353,106 +407,103 @@ $currentUser = $_SESSION['proxima_admin_user'];
             z-index: 50;
         }
         .page-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #f1f5f9;
+            font-size: 16px;
+            font-weight: 600;
+            color: #fafafa;
         }
         .topbar-actions {
             display: flex;
-            gap: 12px;
+            gap: 8px;
         }
         .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 8px 16px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
             border: none;
-            transition: all 0.2s;
+            font-family: inherit;
+            transition: background 0.1s;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #818cf8, #6366f1);
-            color: white;
+            background: #fafafa;
+            color: #09090b;
         }
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(129, 140, 248, 0.4);
+            background: #e4e4e7;
         }
         .btn-danger {
-            background: linear-gradient(135deg, #f87171, #dc2626);
-            color: white;
+            background: #27272a;
+            color: #ef4444;
         }
         .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(248, 113, 113, 0.4);
+            background: #3f3f46;
         }
         
         .content-area {
-            padding: 40px;
+            padding: 32px;
         }
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
             margin-bottom: 32px;
         }
         .stat-card {
-            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-            border: 1px solid #334155;
-            border-radius: 16px;
-            padding: 24px;
+            background: #18181b;
+            border: 1px solid #27272a;
+            padding: 20px;
         }
         .stat-label {
-            font-size: 13px;
-            color: #64748b;
+            font-size: 11px;
+            color: #52525b;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 8px;
         }
         .stat-value {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
-            color: #f1f5f9;
+            color: #fafafa;
         }
         
         .models-list {
-            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-            border: 1px solid #334155;
-            border-radius: 16px;
-            overflow: hidden;
+            background: #18181b;
+            border: 1px solid #27272a;
         }
         .models-header {
-            padding: 24px 32px;
-            border-bottom: 1px solid #334155;
+            padding: 20px 24px;
+            border-bottom: 1px solid #27272a;
         }
         .models-header h2 {
-            font-size: 18px;
-            font-weight: 700;
-            color: #f1f5f9;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fafafa;
         }
         .models-table {
             width: 100%;
+            border-collapse: collapse;
         }
         .models-table th {
             text-align: left;
-            padding: 16px 32px;
-            font-size: 12px;
-            font-weight: 700;
-            color: #64748b;
+            padding: 12px 24px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #52525b;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border-bottom: 1px solid #334155;
+            background: #09090b;
+            border-bottom: 1px solid #27272a;
         }
         .models-table td {
-            padding: 20px 32px;
-            border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+            padding: 16px 24px;
+            border-bottom: 1px solid #27272a;
         }
         .models-table tr:last-child td {
             border-bottom: none;
         }
         .models-table tr:hover {
-            background: rgba(129, 140, 248, 0.05);
+            background: #27272a;
         }
         .model-name-cell {
             display: flex;
@@ -460,83 +511,99 @@ $currentUser = $_SESSION['proxima_admin_user'];
             gap: 12px;
         }
         .model-icon-big {
-            width: 40px;
-            height: 40px;
-            background: rgba(129, 140, 248, 0.1);
-            border-radius: 10px;
+            width: 32px;
+            height: 32px;
+            background: #27272a;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 14px;
         }
         .model-info-cell {
             flex: 1;
         }
         .model-name-text {
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 600;
-            color: #f1f5f9;
+            color: #fafafa;
         }
         .model-table-text {
-            font-size: 13px;
-            color: #64748b;
-            font-family: 'Monaco', monospace;
+            font-size: 12px;
+            color: #52525b;
+            font-family: 'SF Mono', Monaco, monospace;
         }
         .status-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 12px;
+            padding: 4px 10px;
+            font-size: 11px;
             font-weight: 600;
         }
         .status-synced {
             background: rgba(34, 197, 94, 0.1);
-            color: #4ade80;
+            color: #22c55e;
         }
         .status-pending {
             background: rgba(251, 146, 60, 0.1);
-            color: #fb923c;
+            color: #f97316;
+        }
+        .status-orphaned {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        .table-badge.orphaned {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        .orphaned-row {
+            background: rgba(239, 68, 68, 0.05);
+        }
+        .btn-delete {
+            color: #ef4444 !important;
+        }
+        .btn-delete:hover {
+            background: rgba(239, 68, 68, 0.2) !important;
         }
         .btn-table-action {
-            padding: 8px 16px;
-            background: rgba(129, 140, 248, 0.1);
-            border: 1px solid rgba(129, 140, 248, 0.2);
-            color: #818cf8;
-            border-radius: 8px;
-            font-size: 13px;
+            padding: 6px 12px;
+            background: #27272a;
+            border: none;
+            color: #a1a1aa;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            font-family: inherit;
+            transition: all 0.1s;
         }
         .btn-table-action:hover {
-            background: rgba(129, 140, 248, 0.2);
+            background: #3f3f46;
+            color: #fafafa;
         }
         
         .loading {
             text-align: center;
             padding: 60px;
-            color: #64748b;
+            color: #52525b;
         }
         .empty-state {
             text-align: center;
-            padding: 80px 40px;
+            padding: 60px 32px;
         }
         .empty-icon {
-            font-size: 48px;
+            font-size: 32px;
             margin-bottom: 16px;
             opacity: 0.3;
         }
         .empty-title {
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 600;
-            color: #94a3b8;
-            margin-bottom: 8px;
+            color: #71717a;
+            margin-bottom: 4px;
         }
         .empty-text {
-            font-size: 14px;
-            color: #64748b;
+            font-size: 13px;
+            color: #52525b;
         }
     </style>
 </head>
@@ -544,7 +611,7 @@ $currentUser = $_SESSION['proxima_admin_user'];
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo">⚡ Proxima</div>
+            <div class="sidebar-logo"><span>◆</span> Proxima</div>
             <div class="sidebar-subtitle">Admin Panel</div>
         </div>
         
@@ -572,8 +639,8 @@ $currentUser = $_SESSION['proxima_admin_user'];
         <div class="topbar">
             <div class="page-title">Database Management</div>
             <div class="topbar-actions">
-                <button class="btn btn-primary" onclick="syncAllModels()">🔄 Sync All</button>
-                <button class="btn btn-danger" onclick="freshMigration()">⚠️ Fresh Migration</button>
+                <button class="btn btn-primary" onclick="syncAllModels()">Sync All</button>
+                <button class="btn btn-danger" onclick="freshMigration()">Fresh Migration</button>
             </div>
         </div>
         
@@ -590,6 +657,10 @@ $currentUser = $_SESSION['proxima_admin_user'];
                 <div class="stat-card">
                     <div class="stat-label">Pending Changes</div>
                     <div class="stat-value" id="pendingCount">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Orphaned Tables</div>
+                    <div class="stat-value" id="orphanedCount" style="color: #ef4444;">-</div>
                 </div>
             </div>
             
@@ -654,18 +725,34 @@ $currentUser = $_SESSION['proxima_admin_user'];
                 return;
             }
             
-            sidebar.innerHTML = models.map(model => `
+            sidebar.innerHTML = models.map(model => {
+                let badgeClass = '';
+                let badgeText = '';
+                
+                if (model.status === 'synced') {
+                    badgeClass = '';
+                    badgeText = '✓';
+                } else if (model.status === 'orphaned') {
+                    badgeClass = 'orphaned';
+                    badgeText = '✗';
+                } else {
+                    badgeClass = 'pending';
+                    badgeText = '!';
+                }
+                
+                return `
                 <div class="table-item">
-                    <div class="table-icon">📦</div>
+                    <div class="table-icon">${model.isOrphaned ? '⚠' : '◆'}</div>
                     <div class="table-info">
                         <div class="table-name">${model.shortName}</div>
                         <div class="table-meta">${model.tableName}</div>
                     </div>
-                    <div class="table-badge ${model.status === 'synced' ? '' : 'pending'}">
-                        ${model.status === 'synced' ? '✓' : '!'}
+                    <div class="table-badge ${badgeClass}">
+                        ${badgeText}
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
         
         function displayModels(models) {
@@ -675,7 +762,7 @@ $currentUser = $_SESSION['proxima_admin_user'];
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="4" class="empty-state">
-                            <div class="empty-icon">📦</div>
+                            <div class="empty-icon">◆</div>
                             <div class="empty-title">No Models Found</div>
                             <div class="empty-text">Create model files in the models/ directory</div>
                         </td>
@@ -684,13 +771,34 @@ $currentUser = $_SESSION['proxima_admin_user'];
                 return;
             }
             
-            tbody.innerHTML = models.map(model => `
-                <tr>
+            tbody.innerHTML = models.map(model => {
+                let statusBadge = '';
+                let actionButtons = '';
+                
+                if (model.status === 'orphaned') {
+                    statusBadge = '<span class="status-badge status-orphaned">✗ Orphaned</span>';
+                    actionButtons = `<button class="btn-table-action btn-delete" onclick="deleteTable('${model.tableName}')">Delete</button>`;
+                } else if (model.status === 'synced') {
+                    statusBadge = '<span class="status-badge status-synced">✓ Synced</span>';
+                    actionButtons = `
+                        <button class="btn-table-action" onclick="syncModel('${model.className}')">Sync</button>
+                        <button class="btn-table-action btn-delete" onclick="deleteTable('${model.tableName}')">Delete</button>
+                    `;
+                } else {
+                    statusBadge = '<span class="status-badge status-pending">! Pending</span>';
+                    actionButtons = `
+                        <button class="btn-table-action" onclick="syncModel('${model.className}')">Sync</button>
+                        <button class="btn-table-action btn-delete" onclick="deleteTable('${model.tableName}')">Delete</button>
+                    `;
+                }
+                
+                return `
+                <tr class="${model.isOrphaned ? 'orphaned-row' : ''}">
                     <td>
                         <div class="model-name-cell">
-                            <div class="model-icon-big">📦</div>
+                            <div class="model-icon-big">${model.isOrphaned ? '⚠' : '◆'}</div>
                             <div class="model-info-cell">
-                                <div class="model-name-text">${model.shortName}</div>
+                                <div class="model-name-text">${model.shortName}${model.isOrphaned ? ' <small style="color:#ef4444">(no model file)</small>' : ''}</div>
                             </div>
                         </div>
                     </td>
@@ -698,24 +806,26 @@ $currentUser = $_SESSION['proxima_admin_user'];
                         <span class="model-table-text">${model.tableName}</span>
                     </td>
                     <td>
-                        <span class="status-badge ${model.status === 'synced' ? 'status-synced' : 'status-pending'}">
-                            ${model.status === 'synced' ? '✓ Synced' : '! Pending'}
-                        </span>
+                        ${statusBadge}
                     </td>
-                    <td>
-                        <button class="btn-table-action" onclick="syncModel('${model.className}')">
-                            Sync
-                        </button>
+                    <td style="display: flex; gap: 6px;">
+                        ${actionButtons}
                     </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
         }
         
         function updateStats(models) {
             const syncedCount = models.filter(m => m.status === 'synced').length;
-            document.getElementById('totalModels').textContent = models.length;
+            const orphanedCount = models.filter(m => m.status === 'orphaned').length;
+            const pendingCount = models.filter(m => m.status === 'pending').length;
+            const totalModels = models.length - orphanedCount; // Don't count orphaned in total
+            
+            document.getElementById('totalModels').textContent = totalModels;
             document.getElementById('syncedCount').textContent = syncedCount;
-            document.getElementById('pendingCount').textContent = models.length - syncedCount;
+            document.getElementById('pendingCount').textContent = pendingCount;
+            document.getElementById('orphanedCount').textContent = orphanedCount;
         }
         
         async function syncModel(className) {
@@ -755,6 +865,29 @@ $currentUser = $_SESSION['proxima_admin_user'];
                 
                 if (data.success) {
                     alert('✓ All models synced successfully!');
+                    loadModels();
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        async function deleteTable(tableName) {
+            if (!confirm(`Delete table "${tableName}"? This will permanently remove the table and all its data.`)) return;
+            
+            try {
+                const response = await fetch('api.php?token=' + encodeURIComponent(ADMIN_TOKEN), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'deleteTable', table: tableName, token: ADMIN_TOKEN })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('✓ Table deleted successfully!');
                     loadModels();
                 } else {
                     alert('Error: ' + (data.error || 'Unknown error'));

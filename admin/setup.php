@@ -88,22 +88,114 @@ if ($projectDir && Settings::exists($projectDir) && !$justCompleted) {
                 <html>
                 <head>
                     <meta charset="UTF-8">
-                    <title>Setup Already Completed</title>
+                    <title>Setup Already Completed - Proxima</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
                     <style>
-                        body { font-family: Arial, sans-serif; background: #0f172a; color: #e2e8f0; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-                        .message { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 48px; max-width: 500px; text-align: center; }
-                        h1 { color: #f87171; margin-bottom: 16px; }
-                        p { color: #94a3b8; line-height: 1.6; margin-bottom: 24px; }
-                        .info { background: rgba(99, 102, 241, 0.1); border: 1px solid #6366f1; border-radius: 8px; padding: 16px; color: #a5b4fc; font-size: 14px; margin-top: 24px; }
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body { 
+                            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+                            background: #09090b; 
+                            color: #fafafa; 
+                            display: flex; 
+                            align-items: center; 
+                            justify-content: center; 
+                            min-height: 100vh; 
+                            padding: 24px;
+                        }
+                        .container { 
+                            background: #18181b; 
+                            border: 1px solid #27272a; 
+                            max-width: 480px; 
+                            width: 100%;
+                        }
+                        .header {
+                            padding: 32px 32px 24px;
+                            border-bottom: 1px solid #27272a;
+                        }
+                        .status {
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 8px;
+                            padding: 6px 12px;
+                            background: rgba(239, 68, 68, 0.1);
+                            border: 1px solid #dc2626;
+                            font-size: 12px;
+                            font-weight: 600;
+                            color: #ef4444;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            margin-bottom: 16px;
+                        }
+                        h1 { 
+                            font-size: 20px; 
+                            font-weight: 600; 
+                            color: #fafafa;
+                            margin-bottom: 8px;
+                        }
+                        .desc { 
+                            color: #a1a1aa; 
+                            font-size: 14px; 
+                            line-height: 1.6;
+                        }
+                        .content {
+                            padding: 24px 32px;
+                        }
+                        .info-box {
+                            background: #09090b;
+                            border: 1px solid #27272a;
+                            padding: 16px;
+                            margin-bottom: 16px;
+                        }
+                        .info-box strong {
+                            display: block;
+                            font-size: 11px;
+                            font-weight: 600;
+                            color: #71717a;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            margin-bottom: 8px;
+                        }
+                        .info-box code {
+                            font-family: 'SF Mono', Monaco, monospace;
+                            font-size: 13px;
+                            color: #22d3ee;
+                            background: none;
+                        }
+                        .footer {
+                            padding: 16px 32px;
+                            background: #09090b;
+                            border-top: 1px solid #27272a;
+                        }
+                        .note {
+                            display: flex;
+                            gap: 10px;
+                            font-size: 12px;
+                            color: #71717a;
+                        }
+                        .note-icon {
+                            color: #3b82f6;
+                            flex-shrink: 0;
+                        }
                     </style>
                 </head>
                 <body>
-                    <div class="message">
-                        <h1>⚠️ Setup Already Completed</h1>
-                        <p>Proxima has already been configured for this project.</p>
-                        <p>If you need to reconfigure, set <code>development_mode</code> to <code>true</code> in your <code>proxima.settings.php</code> file.</p>
-                        <div class="info">
-                            <strong>Security Note:</strong> This restriction prevents unauthorized access to the setup wizard.
+                    <div class="container">
+                        <div class="header">
+                            <div class="status">● Locked</div>
+                            <h1>Setup Already Completed</h1>
+                            <p class="desc">Proxima has been configured for this project. The setup wizard is now locked for security.</p>
+                        </div>
+                        <div class="content">
+                            <div class="info-box">
+                                <strong>To reconfigure</strong>
+                                Set <code>development_mode</code> to <code>true</code> in your <code>proxima.settings.php</code> file.
+                            </div>
+                        </div>
+                        <div class="footer">
+                            <div class="note">
+                                <span class="note-icon">ℹ</span>
+                                <span>This restriction prevents unauthorized access to the setup wizard in production.</span>
+                            </div>
                         </div>
                     </div>
                 </body>
@@ -306,59 +398,161 @@ if ($step === 'complete' && isset($_SESSION['setup_complete'])):
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #09090b;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 24px;
+            color: #fafafa;
         }
-        .card {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 20px;
-            padding: 48px;
-            max-width: 650px;
+        .container {
+            background: #18181b;
+            border: 1px solid #27272a;
+            max-width: 560px;
             width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
         }
-        .icon { width: 80px; height: 80px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; font-size: 48px; box-shadow: 0 0 30px rgba(16,185,129,0.4); }
-        h1 { font-size: 28px; color: #f1f5f9; text-align: center; margin-bottom: 8px; }
-        .sub { text-align: center; color: #94a3b8; margin-bottom: 32px; }
-        .box { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
-        .label { font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 8px; }
-        .value { font-family: Monaco, monospace; font-size: 13px; color: #60a5fa; word-break: break-all; }
-        .warning { background: rgba(251,146,60,0.1); border-left: 4px solid #fb923c; padding: 16px; border-radius: 8px; margin: 24px 0; color: #cbd5e1; font-size: 14px; }
-        .btn { display: block; width: 100%; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; transition: transform 0.2s; }
-        .btn:hover { transform: translateY(-2px); }
+        .header {
+            padding: 32px 32px 24px;
+            border-bottom: 1px solid #27272a;
+        }
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid #22c55e;
+            font-size: 12px;
+            font-weight: 600;
+            color: #22c55e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+        h1 { 
+            font-size: 24px; 
+            font-weight: 600; 
+            color: #fafafa;
+            margin-bottom: 8px;
+        }
+        .desc { 
+            color: #a1a1aa; 
+            font-size: 14px;
+        }
+        .content {
+            padding: 24px 32px;
+        }
+        .field {
+            background: #09090b;
+            border: 1px solid #27272a;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .field-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .field-value {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 13px;
+            color: #22d3ee;
+            word-break: break-all;
+            line-height: 1.5;
+        }
+        .alerts {
+            padding: 0 32px 24px;
+        }
+        .alert {
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .alert-warning {
+            background: rgba(251, 146, 60, 0.08);
+            border-left: 3px solid #f97316;
+            color: #fed7aa;
+        }
+        .alert-success {
+            background: rgba(34, 197, 94, 0.08);
+            border-left: 3px solid #22c55e;
+            color: #bbf7d0;
+        }
+        .alert-icon {
+            flex-shrink: 0;
+            font-size: 14px;
+        }
+        .alert code {
+            font-family: 'SF Mono', Monaco, monospace;
+            color: #22d3ee;
+            font-size: 12px;
+        }
+        .footer {
+            padding: 24px 32px;
+            background: #09090b;
+            border-top: 1px solid #27272a;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            background: #fafafa;
+            color: #09090b;
+            padding: 14px 24px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: background 0.15s;
+        }
+        .btn:hover {
+            background: #e4e4e7;
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="icon">✓</div>
-        <h1>Setup Completed</h1>
-        <p class="sub">Your admin panel is ready</p>
-        
-        <div class="box">
-            <div class="label">Admin Panel URL</div>
-            <div class="value"><?php echo htmlspecialchars($adminUrl); ?></div>
+    <div class="container">
+        <div class="header">
+            <div class="status">● Complete</div>
+            <h1>Setup Completed</h1>
+            <p class="desc">Your Proxima admin panel is ready to use.</p>
         </div>
         
-        <div class="box">
-            <div class="label">Username</div>
-            <div class="value"><?php echo htmlspecialchars($adminUser); ?></div>
+        <div class="content">
+            <div class="field">
+                <div class="field-label">Admin Panel URL</div>
+                <div class="field-value"><?php echo htmlspecialchars($adminUrl); ?></div>
+            </div>
+            
+            <div class="field">
+                <div class="field-label">Username</div>
+                <div class="field-value"><?php echo htmlspecialchars($adminUser); ?></div>
+            </div>
         </div>
         
-        <div class="warning">
-            ⚠️ <strong>Important:</strong> Save this URL securely. The token cannot be recovered if lost.
+        <div class="alerts">
+            <div class="alert alert-warning">
+                <span class="alert-icon">!</span>
+                <span><strong>Save this URL securely.</strong> The access token cannot be recovered if lost.</span>
+            </div>
+            <div class="alert alert-success">
+                <span class="alert-icon">✓</span>
+                <span>Setup wizard is now locked. Set <code>development_mode: true</code> in settings to reconfigure.</span>
+            </div>
         </div>
         
-        <div class="warning" style="background: rgba(34, 197, 94, 0.1); border-left-color: #22c55e; margin-top: 16px;">
-            ✓ <strong>Setup Protected:</strong> This setup wizard is now locked and cannot be accessed again. To re-enable for development, set <code>development_mode</code> to <code>true</code> in your settings file.
+        <div class="footer">
+            <a href="<?php echo htmlspecialchars($adminUrl); ?>" class="btn">Open Admin Panel →</a>
         </div>
-        
-        <a href="<?php echo htmlspecialchars($adminUrl); ?>" class="btn">Open Admin Panel →</a>
     </div>
 </body>
 </html>
@@ -373,51 +567,67 @@ if ($step === 'complete' && isset($_SESSION['setup_complete'])):
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; color: #e2e8f0; }
-        .wizard { background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 48px; max-width: 700px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
-        .logo { text-align: center; margin-bottom: 40px; }
-        .logo h1 { font-size: 32px; background: linear-gradient(135deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
-        .logo p { color: #94a3b8; font-size: 14px; }
-        .steps { display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; }
-        .steps:before { content: ''; position: absolute; top: 20px; left: 0; right: 0; height: 2px; background: #334155; z-index: 0; }
-        .step { flex: 1; text-align: center; position: relative; z-index: 1; }
-        .step-circle { width: 40px; height: 40px; border-radius: 50%; background: #334155; color: #64748b; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-weight: 700; font-size: 16px; }
-        .step.active .step-circle { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; box-shadow: 0 0 20px rgba(99,102,241,0.5); }
-        .step.complete .step-circle { background: #10b981; color: white; }
-        .step-label { font-size: 12px; color: #64748b; font-weight: 500; }
-        .step.active .step-label { color: #a5b4fc; }
-        .form-group { margin-bottom: 24px; }
-        label { display: block; font-size: 14px; font-weight: 600; color: #cbd5e1; margin-bottom: 8px; }
-        input { width: 100%; padding: 12px 16px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; color: #e2e8f0; font-size: 14px; transition: border 0.2s; }
-        input:focus { outline: none; border-color: #6366f1; }
-        .browser { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 16px; max-height: 400px; overflow-y: auto; margin-bottom: 16px; }
-        .current-path { background: #1e293b; border: 1px solid #334155; padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; font-family: Monaco, monospace; font-size: 13px; color: #60a5fa; display: flex; align-items: center; gap: 8px; }
-        .folder { padding: 12px 14px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px; }
-        .folder:hover { background: #334155; border-color: #6366f1; transform: translateX(4px); }
-        .actions { display: flex; gap: 12px; margin-top: 32px; }
-        .btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .btn-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99,102,241,0.3); }
-        .btn-secondary { background: #334155; color: #cbd5e1; }
-        .btn-secondary:hover { background: #475569; }
-        .error { background: rgba(239,68,68,0.1); border: 1px solid #dc2626; border-radius: 10px; padding: 14px; color: #fca5a5; font-size: 14px; margin-bottom: 20px; }
-        .help { font-size: 13px; color: #64748b; margin-top: 6px; }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: #09090b; 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 24px; 
+            color: #fafafa; 
+        }
+        .wizard { background: #18181b; border: 1px solid #27272a; max-width: 600px; width: 100%; }
+        .logo { padding: 32px 32px 24px; border-bottom: 1px solid #27272a; }
+        .logo h1 { font-size: 13px; font-weight: 600; color: #71717a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+        .logo h1 span { color: #22d3ee; }
+        .logo p { font-size: 20px; font-weight: 600; color: #fafafa; }
+        .steps { display: flex; padding: 0 32px; gap: 8px; background: #09090b; border-bottom: 1px solid #27272a; padding-top: 16px; padding-bottom: 16px; }
+        .step { flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #18181b; border: 1px solid #27272a; }
+        .step.active { border-color: #fafafa; }
+        .step.complete { border-color: #22c55e; }
+        .step-circle { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #52525b; border: 1px solid #3f3f46; }
+        .step.active .step-circle { background: #fafafa; color: #09090b; border-color: #fafafa; }
+        .step.complete .step-circle { background: #22c55e; color: #fff; border-color: #22c55e; }
+        .step-label { font-size: 13px; font-weight: 500; color: #52525b; }
+        .step.active .step-label { color: #fafafa; }
+        .step.complete .step-label { color: #22c55e; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 12px; font-weight: 600; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        input { width: 100%; padding: 12px 14px; background: #09090b; border: 1px solid #27272a; color: #fafafa; font-size: 14px; font-family: inherit; }
+        input:focus { outline: none; border-color: #52525b; }
+        input::placeholder { color: #52525b; }
+        .browser { background: #09090b; border: 1px solid #27272a; max-height: 320px; overflow-y: auto; }
+        .current-path { padding: 12px 14px; background: #18181b; border-bottom: 1px solid #27272a; font-family: 'SF Mono', Monaco, monospace; font-size: 12px; color: #22d3ee; display: flex; align-items: center; gap: 10px; }
+        .folder { padding: 12px 14px; border-bottom: 1px solid #27272a; cursor: pointer; transition: background 0.1s; display: flex; align-items: center; justify-content: flex-start; gap: 12px; }
+        .folder:last-child { border-bottom: none; }
+        .folder:hover { background: #27272a; }
+        .actions { display: flex; gap: 12px; padding: 24px 32px; background: #09090b; border-top: 1px solid #27272a; }
+        .btn { flex: 1; padding: 12px 20px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .btn-primary { background: #fafafa; color: #09090b; }
+        .btn-primary:hover { background: #e4e4e7; }
+        .btn-secondary { background: #27272a; color: #a1a1aa; }
+        .btn-secondary:hover { background: #3f3f46; }
+        .error { background: rgba(239,68,68,0.1); border-left: 3px solid #ef4444; padding: 12px 14px; color: #fca5a5; font-size: 13px; margin: 24px 32px 0; }
+        .help { font-size: 12px; color: #52525b; margin-top: 8px; }
+        .content { padding: 32px; }
+        .section-title { font-size: 15px; font-weight: 600; color: #fafafa; margin-bottom: 20px; }
     </style>
 </head>
 <body>
     <div class="wizard">
         <div class="logo">
-            <h1>⚡ Proxima</h1>
-            <p>Admin Panel Setup Wizard</p>
+            <h1><span>◆</span> Proxima</h1>
+            <p>Setup Wizard</p>
         </div>
         
         <div class="steps">
             <div class="step <?php echo $step >= 1 ? ($step > 1 ? 'complete' : 'active') : ''; ?>">
-                <div class="step-circle">1</div>
+                <div class="step-circle"><?php echo $step > 1 ? '✓' : '1'; ?></div>
                 <div class="step-label">Project</div>
             </div>
             <div class="step <?php echo $step >= 2 ? ($step > 2 ? 'complete' : 'active') : ''; ?>">
-                <div class="step-circle">2</div>
+                <div class="step-circle"><?php echo $step > 2 ? '✓' : '2'; ?></div>
                 <div class="step-label">Database</div>
             </div>
             <div class="step <?php echo $step >= 3 ? 'active' : ''; ?>">
@@ -427,72 +637,78 @@ if ($step === 'complete' && isset($_SESSION['setup_complete'])):
         </div>
         
         <?php if (isset($error)): ?>
-            <div class="error">⚠️ <?php echo htmlspecialchars($error); ?></div>
+            <div class="error"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
         
         <form method="POST">
             <input type="hidden" name="step" value="<?php echo $step; ?>">
             
             <?php if ($step == 1): ?>
-                <h2 style="font-size: 20px; margin-bottom: 24px; color: #f1f5f9;">Select Project Directory</h2>
-                
-                <div class="form-group">
-                    <label>Browse Directories (Click folder to enter)</label>
-                    <div class="browser" id="browser">
-                        <div id="folders">Loading...</div>
+                <div class="content">
+                    <div class="section-title">Select Project Directory</div>
+                    
+                    <div class="form-group">
+                        <label>Browse Directories</label>
+                        <div class="browser" id="browser">
+                            <div id="folders" style="padding: 20px; text-align: center; color: #52525b;">Loading...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Selected Directory</label>
+                        <input type="text" name="project_dir" id="selectedDir" readonly required>
+                        <div class="help">This is where your models/ and admin/ folders will be created</div>
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label>Selected Project Directory</label>
-                    <input type="text" name="project_dir" id="selectedDir" readonly required>
-                    <div class="help">This is where your models/ folder will be created</div>
-                </div>
-                
                 <div class="actions">
-                    <button type="submit" class="btn btn-primary">Next Step →</button>
+                    <button type="submit" class="btn btn-primary">Continue →</button>
                 </div>
                 
             <?php elseif ($step == 2): ?>
-                <h2 style="font-size: 20px; margin-bottom: 24px; color: #f1f5f9;">Database Configuration</h2>
-                
-                <div class="form-group">
-                    <label>Host</label>
-                    <input type="text" name="db_host" value="localhost" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Database Name</label>
-                    <input type="text" name="db_name" placeholder="my_database" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" name="db_user" value="root" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" name="db_password" placeholder="Leave empty if no password">
+                <div class="content">
+                    <div class="section-title">Database Configuration</div>
+                    
+                    <div class="form-group">
+                        <label>Host</label>
+                        <input type="text" name="db_host" value="localhost" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Database Name</label>
+                        <input type="text" name="db_name" placeholder="my_database" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" name="db_user" value="root" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" name="db_password" placeholder="Leave empty if none">
+                    </div>
                 </div>
                 
                 <div class="actions">
                     <button type="button" class="btn btn-secondary" onclick="location.href='setup.php?step=1'">← Back</button>
-                    <button type="submit" class="btn btn-primary">Next Step →</button>
+                    <button type="submit" class="btn btn-primary">Continue →</button>
                 </div>
                 
             <?php elseif ($step == 3): ?>
-                <h2 style="font-size: 20px; margin-bottom: 24px; color: #f1f5f9;">Admin Credentials</h2>
-                
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" name="admin_username" placeholder="admin" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" name="admin_password" placeholder="Enter secure password" required>
-                    <div class="help">Minimum 6 characters</div>
+                <div class="content">
+                    <div class="section-title">Admin Credentials</div>
+                    
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" name="admin_username" placeholder="admin" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" name="admin_password" placeholder="Secure password" required>
+                        <div class="help">Minimum 6 characters</div>
+                    </div>
                 </div>
                 
                 <div class="actions">
@@ -519,7 +735,7 @@ if ($step === 'complete' && isset($_SESSION['setup_complete'])):
                 const data = await response.json();
                 
                 if (data.error) {
-                    document.getElementById('folders').innerHTML = '<div style="color: #ef4444;">' + data.error + '</div>';
+                    document.getElementById('folders').innerHTML = '<div style="padding: 20px; text-align: center; color: #ef4444;">' + data.error + '</div>';
                     return;
                 }
                 
@@ -532,28 +748,28 @@ if ($step === 'complete' && isset($_SESSION['setup_complete'])):
                 
                 // Current path display
                 html += `<div class="current-path">
-                    <span style="color: #64748b;">📂</span>
-                    <span>${data.current}</span>
+                    <span style="font-size: 14px;">📂</span>
+                    <span style="text-align: left;">${data.current}</span>
                 </div>`;
                 
                 // Folders
                 if (data.items.length === 0) {
-                    html += '<div style="color: #64748b; padding: 20px; text-align: center;">No subdirectories found</div>';
+                    html += '<div style="padding: 20px; text-align: center; color: #52525b;">No subdirectories</div>';
                 } else {
                     data.items.forEach(item => {
-                        const icon = item.isParent ? '⬆️' : '📁';
-                        const label = item.isParent ? 'Go Up (Parent Directory)' : item.name;
+                        const icon = item.isParent ? '📂' : '📁';
+                        const label = item.isParent ? '.. (Parent)' : item.name;
                         html += `<div class="folder" data-path="${item.path}" onclick="loadDirectory(this.dataset.path)">
-                            <span style="font-size: 18px;">${icon}</span> 
-                            <span style="flex: 1;">${label}</span>
-                            <span style="font-size: 12px; color: #64748b;">→</span>
+                            <span style="font-size: 16px; flex-shrink: 0;">${icon}</span>
+                            <span style="flex: 1; text-align: left;">${label}</span>
+                            <span style="color: #3f3f46; flex-shrink: 0;">→</span>
                         </div>`;
                     });
                 }
                 
                 document.getElementById('folders').innerHTML = html;
             } catch (error) {
-                document.getElementById('folders').innerHTML = '<div style="color: #ef4444; padding: 20px; text-align: center;">Error loading directory: ' + error.message + '</div>';
+                document.getElementById('folders').innerHTML = '<div style="padding: 20px; text-align: center; color: #ef4444;">Error: ' + error.message + '</div>';
             }
         }
         

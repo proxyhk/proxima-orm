@@ -74,11 +74,14 @@ try {
         case 'getModels':
             $models = ModelDiscovery::getModelsWithInfo();
             $result = [];
+            $modelTableNames = [];
             
             foreach ($models as $className => $info) {
                 // Check if model is synced
                 $diff = Schema::diff($className);
                 $isSynced = empty($diff['add']) && empty($diff['modify']) && empty($diff['drop']);
+                
+                $modelTableNames[] = $info['tableName'];
                 
                 $result[] = [
                     'className' => $className,
@@ -86,7 +89,27 @@ try {
                     'tableName' => $info['tableName'],
                     'status' => $isSynced ? 'synced' : 'pending',
                     'diff' => $diff,
+                    'isOrphaned' => false,
                 ];
+            }
+            
+            // Check for orphaned tables (tables in DB but no model file)
+            $pdo = Database::getConnection();
+            $stmt = $pdo->query("SHOW TABLES");
+            $allTables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+            
+            foreach ($allTables as $tableName) {
+                if (!in_array($tableName, $modelTableNames)) {
+                    // This table exists in DB but has no model - it's orphaned
+                    $result[] = [
+                        'className' => null,
+                        'shortName' => $tableName,
+                        'tableName' => $tableName,
+                        'status' => 'orphaned',
+                        'diff' => [],
+                        'isOrphaned' => true,
+                    ];
+                }
             }
             
             echo json_encode([
@@ -129,7 +152,7 @@ try {
                 
                 if ($tableAttr) {
                     $tableName = $tableAttr->newInstance()->name;
-                    Database::getInstance()->exec("DROP TABLE IF EXISTS `{$tableName}`");
+                    Database::getConnection()->exec("DROP TABLE IF EXISTS `{$tableName}`");
                 }
             }
             
@@ -139,6 +162,24 @@ try {
             echo json_encode([
                 'success' => true,
                 'message' => 'Fresh migration completed',
+            ]);
+            break;
+            
+        case 'deleteTable':
+            $tableName = $input['table'] ?? null;
+            
+            if (!$tableName) {
+                throw new Exception('Table name required');
+            }
+            
+            // Sanitize table name to prevent SQL injection
+            $tableName = preg_replace('/[^a-zA-Z0-9_]/', '', $tableName);
+            
+            Database::getConnection()->exec("DROP TABLE IF EXISTS `{$tableName}`");
+            
+            echo json_encode([
+                'success' => true,
+                'message' => "Table '{$tableName}' deleted successfully",
             ]);
             break;
             
