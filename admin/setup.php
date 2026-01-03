@@ -522,6 +522,9 @@ if ($step === 'complete' && isset($_SESSION['setup_complete'])):
                 
                 currentPath = data.current;
                 
+                // Update selected directory with actual path from server
+                document.getElementById('selectedDir').value = data.current;
+                
                 let html = '';
                 
                 // Current path display
