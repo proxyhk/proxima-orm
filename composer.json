@@ -2,7 +2,16 @@
     "name": "proxima/orm",
     "description": "Django-inspired Active Record ORM for PHP 8+ with automatic schema synchronization and professional admin panel",
     "type": "library",
-    "keywords": ["orm", "database", "active-record", "php8", "attributes", "schema", "migration", "admin-panel"],
+    "keywords": [
+        "orm",
+        "database",
+        "active-record",
+        "php8",
+        "attributes",
+        "schema",
+        "migration",
+        "admin-panel"
+    ],
     "homepage": "https://github.com/yourusername/proxima-orm",
     "license": "MIT",
     "authors": [
