@@ -14,6 +14,7 @@ class Column
         public bool $primaryKey = false,
         public bool $autoIncrement = false,
         public bool $nullable = false,
-        public bool $unique = false
+        public bool $unique = false,
+        public string|int|float|null $default = null  // default value
     ) {}
 }

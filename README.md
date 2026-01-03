@@ -189,13 +189,33 @@ Proxima includes a professional Django-like admin panel for managing your databa
 | 📊 **Model Management** | View and manage all your models |
 | 🔄 **One-Click Migrations** | Sync database schema instantly |
 | 📈 **Migration Status** | See which tables need updates |
+| ⚠️ **Data Loss Protection** | Warnings for destructive changes |
+| 🗑️ **Orphaned Table Detection** | Find tables without model files |
 | 🔒 **Secure Access** | Token-based authentication |
 | 🎨 **Modern UI** | Clean, professional dark theme |
+
+### Admin Panel Status Indicators
+
+| Badge | Meaning | Actions Available |
+|-------|---------|-------------------|
+| ✓ **Synced** | Model matches database | Sync, Delete |
+| ! **Pending** | Changes need to be synced | Sync, Delete |
+| ! **Pending** + ⚠ **Data Loss** | Destructive changes detected | Sync (with warning), Delete |
+| ✗ **Orphaned** | Table exists but no model file | Delete only |
+
+### Statistics Dashboard
+
+- **Total Models**: Active model count (excludes orphaned)
+- **Synced**: Models in sync with database
+- **Pending Changes**: Models with pending migrations
+- **Orphaned Tables**: Database tables without model files
 
 ### When to Use Admin Panel
 
 - ✅ **Sync schema** after modifying models
 - ✅ **View migration status** before deployment
+- ✅ **Detect destructive changes** before data loss
+- ✅ **Clean up orphaned tables** after model deletion
 - ✅ **Manage database** during development
 - ✅ **Quick operations** without terminal access
 
@@ -297,28 +317,191 @@ $activeUsers = User::where('isActive', true)->count();
 
 ---
 
-## 🎨 Column Types
+## 🎨 Column Types & Attributes Reference
 
-| Type | SQL Type | PHP Type | Description |
-|------|----------|----------|-------------|
-| `string` | `VARCHAR(length)` | `string` | Variable-length string |
-| `integer` | `INT` | `int` | Integer values |
-| `boolean` | `TINYINT(1)` | `bool` | True/False values |
-| `text` | `TEXT` | `string` | Long text content |
-| `datetime` | `DATETIME` | `string` | Date and time |
-| `decimal` | `DECIMAL(length, scale)` | `float` | Precise decimal values |
+### Supported Data Types
 
-### Column Options
+| Type | SQL Type | PHP Type | Example | Description |
+|------|----------|----------|---------|-------------|
+| `string` | `VARCHAR(length)` | `string` | `'John Doe'` | Variable-length text (default: 255) |
+| `integer` | `INT` | `int` | `42` | Whole numbers (-2B to 2B) |
+| `boolean` | `TINYINT(1)` | `bool` | `true` / `false` | True/False values (stored as 0/1) |
+| `text` | `TEXT` | `string` | `'Long content...'` | Large text (up to 65KB) |
+| `datetime` | `DATETIME` | `string` | `'2024-01-15 14:30:00'` | Date and time |
+| `decimal` | `DECIMAL(length,scale)` | `float` | `99.99` | Precise decimal numbers (for money, etc.) |
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `type` | `string` | Column type (required) |
-| `length` | `int` | Max length (default: 255) |
-| `scale` | `int` | Decimal places (default: 0) |
-| `primaryKey` | `bool` | Mark as primary key |
-| `autoIncrement` | `bool` | Auto-increment for integers |
-| `nullable` | `bool` | Allow NULL values |
-| `unique` | `bool` | Unique constraint |
+### Complete Attribute Reference
+
+#### #[Column] Attributes
+
+| Attribute | Type | Default | Description | Example |
+|-----------|------|---------|-------------|---------|
+| `type` | `string` | *required* | Column data type | `type: 'string'` |
+| `length` | `int` | `255` | Max length for `string`/`decimal` precision | `length: 100` |
+| `scale` | `int` | `0` | Decimal places for `decimal` type | `scale: 2` |
+| `primaryKey` | `bool` | `false` | Mark as PRIMARY KEY | `primaryKey: true` |
+| `autoIncrement` | `bool` | `false` | Auto-increment (requires `integer` + `primaryKey`) | `autoIncrement: true` |
+| `nullable` | `bool` | `false` | Allow NULL values (use `?type` in PHP) | `nullable: true` |
+| `unique` | `bool` | `false` | UNIQUE constraint (no duplicates) | `unique: true` |
+| `default` | `mixed` | `null` | Default value for column | `default: 0` |
+
+### Default Value Examples
+
+The `default` parameter supports various types of values:
+
+#### 1️⃣ Numeric Defaults
+
+```php
+// Integer default
+#[Column(type: 'integer', default: 0)]
+public int $loginCount;
+
+// Decimal default
+#[Column(type: 'decimal', length: 10, scale: 2, default: 0.00)]
+public float $balance;
+
+// Boolean default (0 = false, 1 = true)
+#[Column(type: 'boolean', default: 1)]
+public bool $isActive;
+```
+
+#### 2️⃣ String Defaults
+
+```php
+// String default (automatically quoted)
+#[Column(type: 'string', length: 20, default: 'active')]
+public string $status;
+
+#[Column(type: 'string', length: 50, default: 'guest')]
+public string $role;
+```
+
+#### 3️⃣ SQL Function Defaults
+
+```php
+// Current timestamp (auto-set on insert)
+#[Column(type: 'datetime', nullable: false, default: 'CURRENT_TIMESTAMP')]
+public string $createdAt;
+
+// Alternative: NOW()
+#[Column(type: 'datetime', default: 'NOW()')]
+public string $updatedAt;
+```
+
+#### 4️⃣ NULL Defaults
+
+```php
+// Explicit NULL default (must be nullable)
+#[Column(type: 'string', length: 100, nullable: true, default: 'NULL')]
+public ?string $profilePicture;
+
+#[Column(type: 'text', nullable: true, default: 'NULL')]
+public ?string $notes;
+```
+
+#### 5️⃣ Date/Time String Defaults
+
+```php
+// Specific datetime
+#[Column(type: 'datetime', nullable: true, default: '2024-01-01 00:00:00')]
+public ?string $lastLogin;
+```
+
+### Real-World Model Example
+
+```php
+<?php
+
+use Proxima\Model;
+use Proxima\Attributes\Table;
+use Proxima\Attributes\Column;
+
+#[Table(name: 'users')]
+class User extends Model
+{
+    // Primary Key (auto-increment)
+    #[Column(type: 'integer', primaryKey: true, autoIncrement: true)]
+    public int $id;
+
+    // Required string
+    #[Column(type: 'string', length: 100)]
+    public string $username;
+
+    // Unique email
+    #[Column(type: 'string', length: 150, unique: true)]
+    public string $email;
+
+    // Boolean with default
+    #[Column(type: 'boolean', nullable: false, default: 1)]
+    public bool $isActive;
+
+    // Nullable text
+    #[Column(type: 'text', nullable: true)]
+    public ?string $bio;
+
+    // Integer with default
+    #[Column(type: 'integer', nullable: false, default: 0)]
+    public int $loginCount;
+
+    // String with default value
+    #[Column(type: 'string', length: 20, nullable: false, default: 'active')]
+    public string $status;
+
+    // Decimal (money)
+    #[Column(type: 'decimal', length: 10, scale: 2, nullable: false, default: 0.00)]
+    public float $balance;
+
+    // Nullable decimal with default
+    #[Column(type: 'decimal', length: 10, scale: 2, nullable: true, default: 0)]
+    public ?float $credits;
+
+    // Auto-timestamp on creation
+    #[Column(type: 'datetime', nullable: false, default: 'CURRENT_TIMESTAMP')]
+    public string $createdAt;
+
+    // Nullable datetime
+    #[Column(type: 'datetime', nullable: true, default: 'NULL')]
+    public ?string $lastLogin;
+}
+```
+
+### ⚠️ Data Loss Protection
+
+Proxima ORM automatically detects **destructive changes** that may cause data loss:
+
+#### Destructive Changes Detected:
+
+| Change Type | Example | Risk |
+|-------------|---------|------|
+| **Type Change** | `string` → `integer` | Data conversion (text becomes 0) |
+| **Length Reduction** | `VARCHAR(100)` → `VARCHAR(50)` | Data truncation |
+| **Precision Loss** | `DECIMAL(10,2)` → `DECIMAL(8,1)` | Number truncation |
+| **NULL to NOT NULL** | `nullable: true` → `nullable: false` | NULL values may cause errors |
+
+#### Admin Panel Warnings:
+
+When syncing models with destructive changes, you'll see:
+
+```
+⚠️ WARNING: DESTRUCTIVE CHANGES DETECTED
+
+The following column changes may cause DATA LOSS:
+
+  • username: varchar → int
+
+Examples:
+  - Type changes (string→integer): Data will be converted (may become 0)
+  - Length reduction (VARCHAR(100)→VARCHAR(50)): Data will be truncated
+  - nullable→NOT NULL: NULLs may cause errors
+
+Do you want to continue? Type "YES" to confirm:
+```
+
+**Safe Changes** (no warning):
+- Adding new columns
+- Increasing length: `VARCHAR(50)` → `VARCHAR(100)` ✅
+- Increasing precision: `DECIMAL(8,2)` → `DECIMAL(10,2)` ✅
+- Making nullable: `NOT NULL` → `NULL` ✅
 
 ---
 

@@ -48,6 +48,11 @@ class Schema
                 if ($column->unique) {
                     $sqlPart .= " UNIQUE";
                 }
+                
+                // Default değer ekle
+                if ($column->default !== null) {
+                    $sqlPart .= " DEFAULT " . self::formatDefaultValue($column->default);
+                }
 
                 if ($column->autoIncrement) {
                     $sqlPart .= " AUTO_INCREMENT";
@@ -87,6 +92,29 @@ class Schema
             'decimal' => "DECIMAL($length,$scale)",
             default   => "VARCHAR(255)"
         };
+    }
+    
+    /**
+     * Format default value for SQL statement
+     */
+    private static function formatDefaultValue(string|int|float|null $value): string
+    {
+        if ($value === null) {
+            return 'NULL';
+        }
+        
+        // Special SQL keywords (CURRENT_TIMESTAMP, etc.)
+        if (is_string($value) && in_array(strtoupper($value), ['CURRENT_TIMESTAMP', 'NOW()', 'NULL'])) {
+            return strtoupper($value);
+        }
+        
+        // Numeric values
+        if (is_numeric($value)) {
+            return (string) $value;
+        }
+        
+        // String values - escape and quote
+        return "'" . addslashes($value) . "'";
     }
 
     /**
@@ -165,7 +193,8 @@ class Schema
                     'nullable' => $column->nullable,
                     'primaryKey' => $column->primaryKey,
                     'unique' => $column->unique,
-                    'autoIncrement' => $column->autoIncrement
+                    'autoIncrement' => $column->autoIncrement,
+                    'default' => $column->default
                 ];
             }
         }
@@ -232,9 +261,14 @@ class Schema
                     $lengthDiff ||
                     $scaleDiff ||
                     $modelCol['nullable'] !== $dbCol['nullable']) {
+                    
+                    // Detect destructive changes (data loss possible)
+                    $isDestructive = self::isDestructiveChange($dbCol, $modelCol);
+                    
                     $diff['modify'][$colName] = [
                         'old' => $dbCol,
-                        'new' => $modelCol
+                        'new' => $modelCol,
+                        'destructive' => $isDestructive
                     ];
                 }
             }
@@ -250,6 +284,50 @@ class Schema
         return $diff;
     }
 
+    /**
+     * Check if a column modification is destructive (may cause data loss)
+     * 
+     * @param array $oldCol Old column definition
+     * @param array $newCol New column definition
+     * @return bool True if change may cause data loss
+     */
+    private static function isDestructiveChange(array $oldCol, array $newCol): bool
+    {
+        $oldType = self::normalizeType($oldCol['type']);
+        $newType = self::normalizeType($newCol['type']);
+        
+        // Type change is always destructive (e.g., string -> integer, integer -> string)
+        if ($oldType !== $newType) {
+            return true;
+        }
+        
+        // String length reduction is destructive
+        if ($oldType === 'string' && isset($oldCol['length']) && isset($newCol['length'])) {
+            if ($newCol['length'] < $oldCol['length']) {
+                return true;
+            }
+        }
+        
+        // Decimal precision/scale reduction is destructive
+        if ($oldType === 'decimal') {
+            $oldLength = $oldCol['length'] ?? 10;
+            $newLength = $newCol['length'] ?? 10;
+            $oldScale = $oldCol['scale'] ?? 0;
+            $newScale = $newCol['scale'] ?? 0;
+            
+            if ($newLength < $oldLength || $newScale < $oldScale) {
+                return true;
+            }
+        }
+        
+        // Making column NOT NULL when it was nullable is potentially destructive
+        if ($oldCol['nullable'] && !$newCol['nullable']) {
+            return true;
+        }
+        
+        return false;
+    }
+    
     /**
      * Normalize database type to model type
      */
@@ -316,6 +394,10 @@ class Schema
                 $sql .= " UNIQUE";
             }
             
+            if (isset($colDef['default']) && $colDef['default'] !== null) {
+                $sql .= " DEFAULT " . self::formatDefaultValue($colDef['default']);
+            }
+            
             $alterStatements[] = $sql;
         }
         
@@ -331,6 +413,10 @@ class Schema
             
             if ($colDef['unique']) {
                 $sql .= " UNIQUE";
+            }
+            
+            if (isset($colDef['default']) && $colDef['default'] !== null) {
+                $sql .= " DEFAULT " . self::formatDefaultValue($colDef['default']);
             }
             
             $alterStatements[] = $sql;

@@ -785,7 +785,18 @@ $currentUser = $_SESSION['proxima_admin_user'];
                         <button class="btn-table-action btn-delete" onclick="deleteTable('${model.tableName}')">Delete</button>
                     `;
                 } else {
-                    statusBadge = '<span class="status-badge status-pending">! Pending</span>';
+                    // Check if has destructive changes
+                    let hasDestructive = false;
+                    if (model.diff && model.diff.modify) {
+                        hasDestructive = Object.values(model.diff.modify).some(change => change.destructive);
+                    }
+                    
+                    if (hasDestructive) {
+                        statusBadge = '<span class="status-badge status-pending">! Pending</span> <span class="status-badge" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">⚠ Data Loss</span>';
+                    } else {
+                        statusBadge = '<span class="status-badge status-pending">! Pending</span>';
+                    }
+                    
                     actionButtons = `
                         <button class="btn-table-action" onclick="syncModel('${model.className}')">Sync</button>
                         <button class="btn-table-action btn-delete" onclick="deleteTable('${model.tableName}')">Delete</button>
@@ -829,7 +840,50 @@ $currentUser = $_SESSION['proxima_admin_user'];
         }
         
         async function syncModel(className) {
-            if (!confirm(`Sync model ${className}?`)) return;
+            // Find model data to check for destructive changes
+            const modelData = modelsData.find(m => m.className === className);
+            
+            if (!modelData) {
+                alert('Model not found');
+                return;
+            }
+            
+            // Check if there are destructive changes
+            let hasDestructive = false;
+            let destructiveWarnings = [];
+            
+            if (modelData.diff && modelData.diff.modify) {
+                for (const [colName, change] of Object.entries(modelData.diff.modify)) {
+                    if (change.destructive) {
+                        hasDestructive = true;
+                        const oldType = change.old.type;
+                        const newType = change.new.type;
+                        destructiveWarnings.push(`  • ${colName}: ${oldType} → ${newType}`);
+                    }
+                }
+            }
+            
+            // Show warning if destructive
+            let confirmMessage = `Sync model ${className}?`;
+            
+            if (hasDestructive) {
+                confirmMessage = `⚠️ WARNING: DESTRUCTIVE CHANGES DETECTED\n\n` +
+                    `The following column changes may cause DATA LOSS:\n\n` +
+                    destructiveWarnings.join('\n') + `\n\n` +
+                    `Examples:\n` +
+                    `  - Type changes (string→integer): Data will be converted (may become 0)\n` +
+                    `  - Length reduction (VARCHAR(100)→VARCHAR(50)): Data will be truncated\n` +
+                    `  - nullable→NOT NULL: NULLs may cause errors\n\n` +
+                    `Do you want to continue? Type "YES" to confirm:`;
+                
+                const confirmation = prompt(confirmMessage);
+                if (confirmation !== 'YES') {
+                    alert('Sync cancelled.');
+                    return;
+                }
+            } else {
+                if (!confirm(confirmMessage)) return;
+            }
             
             try {
                 const response = await fetch('api.php?token=' + encodeURIComponent(ADMIN_TOKEN), {
