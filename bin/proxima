@@ -1,0 +1,114 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Proxima ORM - CLI Tool
+ * 
+ * Usage: php proxima migrate:<command> [arguments]
+ */
+
+// Find autoload.php (support both local and global installation)
+$autoloadPaths = [
+    __DIR__ . '/../vendor/autoload.php',  // Local Proxima installation
+    __DIR__ . '/../../../autoload.php',   // Global composer installation
+    getcwd() . '/vendor/autoload.php',    // Current working directory
+];
+
+$autoloadFound = false;
+foreach ($autoloadPaths as $path) {
+    if (file_exists($path)) {
+        require $path;
+        $autoloadFound = true;
+        break;
+    }
+}
+
+if (!$autoloadFound) {
+    echo "Error: Composer autoload not found. Run 'composer install' first.\n";
+    exit(1);
+}
+
+use Proxima\Console\MigrateCommand;
+use Proxima\Core\Database;
+use Proxima\Core\Settings;
+use Proxima\Core\ModelDiscovery;
+
+// Parse command line arguments
+$args = $argv ?? [];
+array_shift($args); // Remove script name
+
+if (empty($args)) {
+    echo "Proxima ORM CLI Tool\n";
+    echo "Run 'php proxima migrate:help' for usage information\n\n";
+    exit(0);
+}
+
+// Get command
+$command = $args[0];
+$commandParts = explode(':', $command);
+
+// Get project directory (current working directory)
+$projectDir = getcwd();
+
+// Load settings and initialize
+try {
+    // Check if settings file exists
+    if (!Settings::exists($projectDir)) {
+        echo "\033[33mWarning: proxima.settings.php not found in project root\033[0m\n";
+        echo "Please create a settings file with database configuration.\n\n";
+        exit(1);
+    }
+    
+    // Load settings
+    $settings = Settings::load($projectDir);
+    
+    // Connect to database
+    Database::connect($settings['database']);
+    
+    // Load models from models/ directory
+    ModelDiscovery::loadFromModelsDirectory($settings['project_dir']);
+    
+} catch (\Exception $e) {
+    echo "\033[31mConfiguration Error: " . $e->getMessage() . "\033[0m\n\n";
+    exit(1);
+}
+
+// Route command
+try {
+    if (count($commandParts) === 2 && $commandParts[0] === 'migrate') {
+        $action = $commandParts[1];
+        $argument = $args[1] ?? null;
+
+        switch ($action) {
+            case 'sync':
+                MigrateCommand::sync($argument);
+                break;
+
+            case 'status':
+                MigrateCommand::status();
+                break;
+
+            case 'fresh':
+                MigrateCommand::fresh();
+                break;
+
+            case 'help':
+                MigrateCommand::help();
+                break;
+
+            default:
+                echo "Unknown command: $action\n";
+                echo "Run 'php proxima migrate:help' for available commands\n\n";
+                exit(1);
+        }
+    } else {
+        echo "Invalid command format\n";
+        echo "Use: php proxima migrate:<command>\n\n";
+        exit(1);
+    }
+} catch (\Exception $e) {
+    echo "\033[31mError: " . $e->getMessage() . "\033[0m\n\n";
+    exit(1);
+}
+
+exit(0);
