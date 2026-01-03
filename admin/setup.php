@@ -69,7 +69,10 @@ if (!$projectDir && isset($_SERVER['DOCUMENT_ROOT'])) {
 // If we can't detect, user will select in the wizard
 
 // Check if setup is already completed
-if ($projectDir && Settings::exists($projectDir)) {
+// But allow showing complete page if we just finished setup
+$justCompleted = (isset($_GET['step']) && $_GET['step'] === 'complete' && isset($_SESSION['setup_complete']));
+
+if ($projectDir && Settings::exists($projectDir) && !$justCompleted) {
     try {
         $settings = Settings::load($projectDir);
         
