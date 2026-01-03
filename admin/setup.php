@@ -126,16 +126,52 @@ if (!isset($_GET['step']) && !isset($_POST['step'])) {
 
 // AJAX: Directory Browser
 if (isset($_GET['action']) && $_GET['action'] === 'browse') {
-    $path = $_GET['path'] ?? 'C:\\';
-    if (!is_dir($path)) {
+    $path = $_GET['path'] ?? null;
+    
+    // Auto-detect starting path if not provided
+    if (!$path) {
+        // Try to detect project root intelligently
+        if ($projectDir && is_dir($projectDir)) {
+            $path = $projectDir;
+        } elseif (isset($_SERVER['DOCUMENT_ROOT']) && is_dir($_SERVER['DOCUMENT_ROOT'])) {
+            $path = $_SERVER['DOCUMENT_ROOT'];
+        } else {
+            // Platform-specific defaults
+            $path = (DIRECTORY_SEPARATOR === '\\') ? 'C:\\' : '/';
+        }
+    }
+    
+    // Validate and normalize path
+    $path = realpath($path);
+    if (!$path || !is_dir($path)) {
         echo json_encode(['error' => 'Invalid directory']);
         exit;
     }
+    
     $items = [];
-    $dirs = glob($path . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR);
-    foreach ($dirs as $dir) {
-        $items[] = ['name' => basename($dir), 'path' => $dir];
+    
+    // Get parent directory link (except for root)
+    $parentDir = dirname($path);
+    if ($parentDir !== $path && is_readable($parentDir)) {
+        $items[] = ['name' => '..', 'path' => $parentDir, 'isParent' => true];
     }
+    
+    // Read directories
+    try {
+        $dirs = @glob($path . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR);
+        if ($dirs === false) {
+            $dirs = [];
+        }
+        
+        foreach ($dirs as $dir) {
+            if (is_readable($dir)) {
+                $items[] = ['name' => basename($dir), 'path' => $dir, 'isParent' => false];
+            }
+        }
+    } catch (Exception $e) {
+        // Ignore permission errors
+    }
+    
     header('Content-Type: application/json');
     echo json_encode(['items' => $items, 'current' => $path]);
     exit;
@@ -194,14 +230,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('Settings already exist');
             }
             
+            // Normalize path separators for cross-platform compatibility
+            $projectDir = str_replace('\\', '/', $projectDir);
+            
             // Create models/ directory
-            $modelsDir = rtrim($projectDir, '/\\') . DIRECTORY_SEPARATOR . 'models';
+            $modelsDir = rtrim($projectDir, '/') . '/models';
             if (!is_dir($modelsDir)) {
                 mkdir($modelsDir, 0755, true);
             }
             
             // Create admin/ directory in USER PROJECT
-            $adminDir = rtrim($projectDir, '/\\') . DIRECTORY_SEPARATOR . 'admin';
+            $adminDir = rtrim($projectDir, '/') . '/admin';
             if (!is_dir($adminDir)) {
                 mkdir($adminDir, 0755, true);
             }
@@ -463,7 +502,7 @@ if ($step === 'complete' && isset($_SESSION['setup_complete'])):
     
     <?php if ($step == 1): ?>
     <script>
-        let currentPath = 'C:\\';
+        let currentPath = null;
         
         async function loadDirectory(path) {
             currentPath = path;
@@ -472,7 +511,8 @@ if ($step === 'complete' && isset($_SESSION['setup_complete'])):
             document.getElementById('selectedDir').value = path;
             
             try {
-                const response = await fetch(`setup.php?action=browse&path=${encodeURIComponent(path)}`);
+                const url = path ? `setup.php?action=browse&path=${encodeURIComponent(path)}` : 'setup.php?action=browse';
+                const response = await fetch(url);
                 const data = await response.json();
                 
                 if (data.error) {
@@ -480,31 +520,26 @@ if ($step === 'complete' && isset($_SESSION['setup_complete'])):
                     return;
                 }
                 
+                currentPath = data.current;
+                
                 let html = '';
                 
                 // Current path display
                 html += `<div class="current-path">
                     <span style="color: #64748b;">📂</span>
-                    <span>${path}</span>
+                    <span>${data.current}</span>
                 </div>`;
-                
-                // Parent directory button
-                const parent = path.substring(0, path.lastIndexOf('\\'));
-                if (parent && parent.length > 2) {
-                    html += `<div class="folder" data-path="${parent}" onclick="loadDirectory(this.dataset.path)">
-                        <span style="font-size: 18px;">⬆️</span> 
-                        <span style="flex: 1;">Go Up (Parent Directory)</span>
-                    </div>`;
-                }
                 
                 // Folders
                 if (data.items.length === 0) {
                     html += '<div style="color: #64748b; padding: 20px; text-align: center;">No subdirectories found</div>';
                 } else {
                     data.items.forEach(item => {
+                        const icon = item.isParent ? '⬆️' : '📁';
+                        const label = item.isParent ? 'Go Up (Parent Directory)' : item.name;
                         html += `<div class="folder" data-path="${item.path}" onclick="loadDirectory(this.dataset.path)">
-                            <span style="font-size: 18px;">📁</span> 
-                            <span style="flex: 1;">${item.name}</span>
+                            <span style="font-size: 18px;">${icon}</span> 
+                            <span style="flex: 1;">${label}</span>
                             <span style="font-size: 12px; color: #64748b;">→</span>
                         </div>`;
                     });
@@ -512,12 +547,12 @@ if ($step === 'complete' && isset($_SESSION['setup_complete'])):
                 
                 document.getElementById('folders').innerHTML = html;
             } catch (error) {
-                document.getElementById('folders').innerHTML = '<div style="color: #ef4444; padding: 20px; text-align: center;">Error loading directory</div>';
+                document.getElementById('folders').innerHTML = '<div style="color: #ef4444; padding: 20px; text-align: center;">Error loading directory: ' + error.message + '</div>';
             }
         }
         
-        // Load initial directory
-        loadDirectory(currentPath);
+        // Load initial directory (auto-detect based on server)
+        loadDirectory(null);
     </script>
     <?php endif; ?>
 </body>

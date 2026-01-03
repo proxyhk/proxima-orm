@@ -17,7 +17,9 @@ class Settings
      */
     public static function load(string $projectDir): array
     {
-        $settingsFile = rtrim($projectDir, '/\\') . DIRECTORY_SEPARATOR . 'proxima.settings.php';
+        // Normalize path separators for cross-platform compatibility
+        $projectDir = str_replace('\\', '/', $projectDir);
+        $settingsFile = rtrim($projectDir, '/') . '/proxima.settings.php';
         
         if (!file_exists($settingsFile)) {
             throw new \RuntimeException("Settings file not found: {$settingsFile}");
@@ -60,7 +62,9 @@ class Settings
      */
     public static function create(string $projectDir, array $config): bool
     {
-        $settingsFile = rtrim($projectDir, '/\\') . DIRECTORY_SEPARATOR . 'proxima.settings.php';
+        // Normalize path separators for cross-platform compatibility
+        $projectDir = str_replace('\\', '/', $projectDir);
+        $settingsFile = rtrim($projectDir, '/') . '/proxima.settings.php';
         
         // Validate config
         if (!isset($config['project_dir']) || !isset($config['database'])) {
@@ -83,7 +87,11 @@ class Settings
         $content .= " * Auto-generated configuration file\n";
         $content .= " */\n\n";
         $content .= "return [\n";
-        $content .= "    'project_dir' => " . var_export($config['project_dir'], true) . ",\n\n";
+        
+        // Normalize path to use forward slashes (works on all platforms)
+        $normalizedPath = str_replace('\\', '/', $config['project_dir']);
+        $content .= "    'project_dir' => " . var_export($normalizedPath, true) . ",\n\n";
+        
         $content .= "    'database' => [\n";
         $content .= "        'host' => " . var_export($db['host'], true) . ",\n";
         $content .= "        'dbname' => " . var_export($db['dbname'], true) . ",\n";
@@ -134,7 +142,9 @@ class Settings
      */
     public static function exists(string $projectDir): bool
     {
-        $settingsFile = rtrim($projectDir, '/\\') . DIRECTORY_SEPARATOR . 'proxima.settings.php';
+        // Normalize path separators for cross-platform compatibility
+        $projectDir = str_replace('\\', '/', $projectDir);
+        $settingsFile = rtrim($projectDir, '/') . '/proxima.settings.php';
         return file_exists($settingsFile);
     }
     
@@ -146,7 +156,9 @@ class Settings
      */
     public static function getPath(string $projectDir): string
     {
-        return rtrim($projectDir, '/\\') . DIRECTORY_SEPARATOR . 'proxima.settings.php';
+        // Normalize path separators for cross-platform compatibility
+        $projectDir = str_replace('\\', '/', $projectDir);
+        return rtrim($projectDir, '/') . '/proxima.settings.php';
     }
     
     /**

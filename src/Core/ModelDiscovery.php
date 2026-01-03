@@ -54,14 +54,16 @@ class ModelDiscovery
      */
     public static function loadFromModelsDirectory(string $projectDir): array
     {
-        $modelsDir = rtrim($projectDir, '/\\') . DIRECTORY_SEPARATOR . 'models';
+        // Normalize path separators for cross-platform compatibility
+        $projectDir = str_replace('\\', '/', $projectDir);
+        $modelsDir = rtrim($projectDir, '/') . '/models';
         
         if (!is_dir($modelsDir)) {
             return [];
         }
         
         // Load all PHP files in models/ directory (non-recursive)
-        $files = glob($modelsDir . DIRECTORY_SEPARATOR . '*.php');
+        $files = glob($modelsDir . '/*.php');
         
         if ($files === false) {
             return [];
