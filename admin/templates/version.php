@@ -6,7 +6,7 @@
  */
 
 // Current admin panel version
-define('PROXIMA_ADMIN_VERSION', '1.0.1');
+define('PROXIMA_ADMIN_VERSION', '1.0.7');
 
 // List of files to copy during update
 define('PROXIMA_ADMIN_FILES', [
@@ -117,7 +117,7 @@ function performUpdate(): array
         ];
     }
     
-    $adminPath = dirname(__DIR__);
+    $adminPath = __DIR__;  // Fixed: Current directory is already the admin directory
     $errors = [];
     $updated = [];
     
