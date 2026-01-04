@@ -115,7 +115,7 @@ include __DIR__ . '/includes/header.php';
 <!-- Data Table -->
 <div class="card">
     <div class="table-scroll-container">
-        <table class="data-table">
+        <table class="data-table<?= count($columns) > 5 ? ' scrollable' : '' ?>">
             <thead>
                 <tr>
                     <?php foreach ($columns as $col): ?>

@@ -54,7 +54,7 @@ $backUrl = 'record.php?class=' . urlencode($modelClass) . '&id=' . $recordId;
 include __DIR__ . '/includes/header.php';
 ?>
 
-<div class="card" style="max-width: 600px;">
+<div class="card">
     <div class="card-header">
         <h2>Edit <?= e($modelInfo['shortName']) ?> #<?= $recordId ?></h2>
     </div>

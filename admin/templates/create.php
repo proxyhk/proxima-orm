@@ -39,7 +39,7 @@ $backUrl = 'model.php?class=' . urlencode($modelClass);
 include __DIR__ . '/includes/header.php';
 ?>
 
-<div class="card" style="max-width: 600px;">
+<div class="card">
     <div class="card-header">
         <h2>New <?= e($modelInfo['shortName']) ?></h2>
     </div>

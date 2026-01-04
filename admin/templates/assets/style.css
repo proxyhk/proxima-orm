@@ -1009,8 +1009,14 @@ a {
     background: #27272a;
 }
 
-/* Table min-width for scrollable behavior */
+/* Table width - full width by default, scrollable when needed */
 .table-scroll-container .data-table {
-    min-width: 800px;
+    min-width: 100%;
+    width: 100%;
+}
+
+/* When table has many columns, allow it to expand */
+.table-scroll-container .data-table.scrollable {
     width: max-content;
+    min-width: 100%;
 }
