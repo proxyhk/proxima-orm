@@ -35,6 +35,9 @@ if (!$modelInfo) {
     exit;
 }
 
+// Get schema to check for image fields
+$schema = getModelSchema($modelClass);
+
 // Get record
 $record = getRecord($modelClass, (int) $recordId);
 if (!$record) {
@@ -65,9 +68,13 @@ include __DIR__ . '/includes/header.php';
     <table class="detail-table">
         <tbody>
             <?php foreach ($record as $field => $value): ?>
+                <?php 
+                $fieldConfig = $schema[$field] ?? [];
+                $isImage = !empty($fieldConfig['isImage']);
+                ?>
                 <tr>
                     <th><?= e($field) ?></th>
-                    <td><?= formatValue($value) ?></td>
+                    <td><?php if ($isImage && $value): ?><a href="<?= e($value) ?>" target="_blank" style="color: #22d3ee; text-decoration: none;"><?= e($value) ?></a><?php else: ?><?= formatValue($value) ?><?php endif; ?></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

@@ -44,7 +44,7 @@ include __DIR__ . '/includes/header.php';
         <h2><?= t('new') ?> <?= e($modelInfo['shortName']) ?></h2>
     </div>
     
-    <form method="POST" action="actions.php">
+    <form method="POST" action="actions.php" enctype="multipart/form-data">
         <input type="hidden" name="action" value="create_record">
         <input type="hidden" name="class" value="<?= e($modelClass) ?>">
         <?= csrfField() ?>
@@ -64,8 +64,14 @@ include __DIR__ . '/includes/header.php';
                 <div class="form-group">
                     <label class="form-label"><?= e($fieldName) ?> <?= $requiredMark ?></label>
                     
-                    <?php if ($config['type'] === 'text'): ?>
-                        <textarea name="<?= e($fieldName) ?>" class="form-textarea" 
+                    <?php if (!empty($config['isImage'])): ?>
+                        <input type="file" name="<?= e($fieldName) ?>" class="form-input" 
+                               accept="image/*" <?= $required ? 'required' : '' ?>>
+                        <div class="form-hint"><?= t('upload_image') ?></div>
+                    
+                    <?php elseif ($config['type'] === 'text'): ?>
+                        <?php $editorClass = ($config['useEditor'] ?? true) ? 'hugerte-editor' : ''; ?>
+                        <textarea name="<?= e($fieldName) ?>" class="form-textarea <?= $editorClass ?>" 
                                   <?= $required ? 'required' : '' ?>
                                   placeholder="<?= t('enter') ?> <?= e($fieldName) ?>"></textarea>
                     

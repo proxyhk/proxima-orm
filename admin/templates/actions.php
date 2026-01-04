@@ -81,9 +81,22 @@ try {
                 throw new Exception('Invalid model class');
             }
             
+            // Get schema to check for image fields
+            $schema = getModelSchema($class);
+            
             // Get form data (exclude action, class, csrf_token)
             $data = $_POST;
             unset($data['action'], $data['class'], $data['csrf_token']);
+            
+            // Handle image uploads
+            foreach ($schema as $fieldName => $config) {
+                if (!empty($config['isImage']) && isset($_FILES[$fieldName]) && $_FILES[$fieldName]['error'] === UPLOAD_ERR_OK) {
+                    $reflection = new \ReflectionClass($class);
+                    $modelName = $reflection->getShortName();
+                    $imagePath = uploadImage($_FILES[$fieldName], $modelName);
+                    $data[$fieldName] = $imagePath;
+                }
+            }
             
             $id = createRecord($class, $data);
             
@@ -109,9 +122,29 @@ try {
                 throw new Exception('Record ID is required');
             }
             
+            // Get schema to check for image fields
+            $schema = getModelSchema($class);
+            $oldRecord = getRecord($class, (int) $id);
+            
             // Get form data (exclude action, class, id, csrf_token)
             $data = $_POST;
             unset($data['action'], $data['class'], $data['id'], $data['csrf_token']);
+            
+            // Handle image uploads and delete old images
+            foreach ($schema as $fieldName => $config) {
+                if (!empty($config['isImage']) && isset($_FILES[$fieldName]) && $_FILES[$fieldName]['error'] === UPLOAD_ERR_OK) {
+                    // Delete old image if exists
+                    if (!empty($oldRecord[$fieldName])) {
+                        deleteImage($oldRecord[$fieldName]);
+                    }
+                    
+                    // Upload new image
+                    $reflection = new \ReflectionClass($class);
+                    $modelName = $reflection->getShortName();
+                    $imagePath = uploadImage($_FILES[$fieldName], $modelName);
+                    $data[$fieldName] = $imagePath;
+                }
+            }
             
             updateRecord($class, (int) $id, $data);
             
@@ -163,6 +196,49 @@ try {
             
             $referer = $_SERVER['HTTP_REFERER'] ?? 'index.php';
             header('Location: ' . $referer);
+            exit;
+        
+        // ===== UPLOAD EDITOR IMAGE =====
+        case 'upload_editor_image':
+            // Check if file was uploaded
+            if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+                http_response_code(400);
+                echo json_encode(['error' => 'No file uploaded or upload error']);
+                exit;
+            }
+            
+            $file = $_FILES['file'];
+            
+            // Validate file type
+            $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $file['tmp_name']);
+            finfo_close($finfo);
+            
+            if (!in_array($mimeType, $allowedTypes)) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid file type. Only images allowed.']);
+                exit;
+            }
+            
+            // Validate file size (max 5MB)
+            if ($file['size'] > 5 * 1024 * 1024) {
+                http_response_code(400);
+                echo json_encode(['error' => 'File too large. Maximum size is 5MB.']);
+                exit;
+            }
+            
+            // Upload image to media/editor/ directory
+            $imagePath = uploadImage($file, 'editor');
+            
+            if ($imagePath) {
+                // Return path-only URL (e.g., /d/media/editor/uuid.png)
+                // This works better than absolute URL - no domain/protocol issues
+                echo json_encode(['location' => $imagePath]);
+            } else {
+                http_response_code(500);
+                echo json_encode(['error' => 'Failed to upload image']);
+            }
             exit;
         
         // ===== UNKNOWN ACTION =====

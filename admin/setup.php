@@ -287,6 +287,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('Invalid project directory');
             }
             $_SESSION['setup_data']['project_dir'] = $projectDir;
+            $_SESSION['setup_data']['base_url'] = $_POST['base_url'] ?? '/';
             $_SESSION['setup_step'] = 2;
             header('Location: setup.php?step=2');
             exit;
@@ -334,6 +335,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 mkdir($modelsDir, 0755, true);
             }
             
+            // Create media/ directory for file uploads
+            $mediaDir = rtrim($projectDir, '/') . '/media';
+            if (!is_dir($mediaDir)) {
+                mkdir($mediaDir, 0755, true);
+            }
+            
             // Create admin/ directory in USER PROJECT
             $adminDir = rtrim($projectDir, '/') . '/admin';
             if (!is_dir($adminDir)) {
@@ -346,6 +353,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Create settings
             $config = [
                 'project_dir' => $projectDir,
+                'base_url' => $_SESSION['setup_data']['base_url'] ?? '/',
                 'database' => $_SESSION['setup_data']['database'],
                 'admin' => [
                     'token' => $token,
@@ -386,6 +394,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             copy($templatesDir . '/includes/functions.php', $includesDir . '/functions.php');
             copy($templatesDir . '/includes/header.php', $includesDir . '/header.php');
             copy($templatesDir . '/includes/footer.php', $includesDir . '/footer.php');
+            copy($templatesDir . '/includes/translations.php', $includesDir . '/translations.php');
             
             // Copy assets
             copy($templatesDir . '/assets/style.css', $assetsDir . '/style.css');
@@ -686,6 +695,12 @@ if ($step === 'complete' && isset($_SESSION['setup_complete'])):
                         <label>Selected Directory</label>
                         <input type="text" name="project_dir" id="selectedDir" readonly required>
                         <div class="help">This is where your models/ and admin/ folders will be created</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Base URL Path</label>
+                        <input type="text" name="base_url" id="base_url" placeholder="/" value="/">
+                        <div class="help">If your app is in a subfolder (e.g., /myapp), enter it here. Leave as / for root.</div>
                     </div>
                 </div>
                 

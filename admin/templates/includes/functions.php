@@ -8,6 +8,23 @@
 use Proxima\Core\Schema;
 use Proxima\Core\ModelDiscovery;
 use Proxima\Core\Database;
+use Proxima\Core\Settings;
+
+/**
+ * Get base URL for the application
+ */
+function getBaseUrl(): string
+{
+    $projectDir = dirname(__DIR__, 2); // Go up from admin/includes to project root
+    $settings = Settings::load($projectDir);
+    $baseUrl = $settings['base_url'] ?? '/';
+    
+    // Remove trailing slash if present
+    $baseUrl = rtrim($baseUrl, '/');
+    
+    // Return empty string for root, otherwise return the base URL
+    return $baseUrl === '' || $baseUrl === '/' ? '' : $baseUrl;
+}
 
 /**
  * Get all models with their info and sync status
@@ -106,6 +123,8 @@ function getModelSchema(string $modelClass): array
                 'autoIncrement' => $column->autoIncrement,
                 'unique' => $column->unique,
                 'default' => $column->default,
+                'isImage' => property_exists($column, 'isImage') ? $column->isImage : false,
+                'useEditor' => property_exists($column, 'useEditor') ? $column->useEditor : true,
             ];
         }
     }
@@ -121,7 +140,18 @@ function getRecords(string $modelClass, int $page = 1, int $perPage = 20): array
     $offset = ($page - 1) * $perPage;
     $total = $modelClass::query()->count();
     
+    // Get primary key column name
+    $schema = getModelSchema($modelClass);
+    $primaryKey = 'id'; // default
+    foreach ($schema as $colName => $config) {
+        if ($config['primaryKey'] ?? false) {
+            $primaryKey = $colName;
+            break;
+        }
+    }
+    
     $records = $modelClass::query()
+        ->orderBy($primaryKey, 'DESC')  // Order by primary key descending (newest first)
         ->limit($perPage)
         ->offset($offset)
         ->get();
@@ -345,4 +375,95 @@ function verifyCsrf(): bool
 function csrfField(): string
 {
     return '<input type="hidden" name="csrf_token" value="' . e(csrfToken()) . '">';
+}
+
+/**
+ * Upload image file and return the path
+ * 
+ * @param array $file The $_FILES array for the uploaded file
+ * @param string $modelName Model name (e.g., 'User', 'Post')
+ * @return string|null Returns the relative path (e.g., 'media/users/uuid.jpg') or null on error
+ */
+function uploadImage(array $file, string $modelName): ?string
+{
+    // Check if file was uploaded
+    if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
+        return null;
+    }
+    
+    // Check for upload errors
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        return null;
+    }
+    
+    // Validate file type
+    $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+    
+    if (!in_array($mimeType, $allowedTypes)) {
+        return null;
+    }
+    
+    // Get file extension
+    $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+        $extension = 'jpg'; // fallback
+    }
+    
+    // Generate UUID for filename
+    $uuid = sprintf(
+        '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+        mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+        mt_rand(0, 0xffff),
+        mt_rand(0, 0x0fff) | 0x4000,
+        mt_rand(0, 0x3fff) | 0x8000,
+        mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+    );
+    
+    // Create model-specific directory
+    $modelDirName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $modelName)); // CamelCase to snake_case
+    $projectDir = dirname(__DIR__, 2); // Go up from admin/includes to project root
+    $mediaDir = $projectDir . '/media/' . $modelDirName;
+    
+    if (!is_dir($mediaDir)) {
+        mkdir($mediaDir, 0755, true);
+    }
+    
+    // Create filename and path
+    $filename = $uuid . '.' . $extension;
+    $fullPath = $mediaDir . '/' . $filename;
+    $relativePath = 'media/' . $modelDirName . '/' . $filename;
+    
+    // Move uploaded file
+    if (move_uploaded_file($file['tmp_name'], $fullPath)) {
+        // Return path with base URL included
+        $baseUrl = getBaseUrl();
+        return $baseUrl . '/' . $relativePath;
+    }
+    
+    return null;
+}
+
+/**
+ * Delete image file from disk
+ * 
+ * @param string $imagePath Relative path (e.g., 'media/users/uuid.jpg')
+ * @return bool
+ */
+function deleteImage(string $imagePath): bool
+{
+    if (empty($imagePath)) {
+        return false;
+    }
+    
+    $projectDir = dirname(__DIR__, 2);
+    $fullPath = $projectDir . '/' . $imagePath;
+    
+    if (file_exists($fullPath) && is_file($fullPath)) {
+        return unlink($fullPath);
+    }
+    
+    return false;
 }

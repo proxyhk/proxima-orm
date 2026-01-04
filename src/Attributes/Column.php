@@ -15,6 +15,8 @@ class Column
         public bool $autoIncrement = false,
         public bool $nullable = false,
         public bool $unique = false,
-        public string|int|float|null $default = null  // default value
+        public string|int|float|null $default = null,  // default value
+        public bool $isImage = false,  // if true, shows image upload field in admin panel
+        public bool $useEditor = true  // if false, shows plain textarea instead of HugeRTE for text fields
     ) {}
 }

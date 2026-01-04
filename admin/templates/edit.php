@@ -59,7 +59,7 @@ include __DIR__ . '/includes/header.php';
         <h2><?= t('edit') ?> <?= e($modelInfo['shortName']) ?> #<?= $recordId ?></h2>
     </div>
     
-    <form method="POST" action="actions.php">
+    <form method="POST" action="actions.php" enctype="multipart/form-data">
         <input type="hidden" name="action" value="update_record">
         <input type="hidden" name="class" value="<?= e($modelClass) ?>">
         <input type="hidden" name="id" value="<?= e($recordId) ?>">
@@ -83,8 +83,21 @@ include __DIR__ . '/includes/header.php';
                         <?php endif; ?>
                     </label>
                     
-                    <?php if ($config['type'] === 'text'): ?>
-                        <textarea name="<?= e($fieldName) ?>" class="form-textarea" 
+                    <!-- Debug: <?= $fieldName ?>: type=<?= $config['type'] ?>, isImage=<?= isset($config['isImage']) ? ($config['isImage'] ? 'true' : 'false') : 'not_set' ?> -->
+                    
+                    <?php if (!empty($config['isImage'])): ?>
+                        <?php if ($value): ?>
+                            <div style="margin-bottom: 10px;">
+                                <img src="<?= e($value) ?>" alt="Current" style="max-width: 200px; max-height: 200px; border: 1px solid #3f3f46; border-radius: 4px;">
+                                <div class="form-hint"><?= t('current_image') ?></div>
+                            </div>
+                        <?php endif; ?>
+                        <input type="file" name="<?= e($fieldName) ?>" class="form-input" accept="image/*">
+                        <div class="form-hint"><?= t('leave_empty_to_keep_current') ?></div>
+                    
+                    <?php elseif ($config['type'] === 'text'): ?>
+                        <?php $editorClass = ($config['useEditor'] ?? true) ? 'hugerte-editor' : ''; ?>
+                        <textarea name="<?= e($fieldName) ?>" class="form-textarea <?= $editorClass ?>" 
                                   <?= $required ? 'required' : '' ?> <?= $readonly ?>><?= e($value) ?></textarea>
                     
                     <?php elseif ($config['type'] === 'boolean'): ?>
