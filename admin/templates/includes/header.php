@@ -9,8 +9,15 @@
  * - $currentPage: string - Current page identifier for sidebar highlighting
  */
 
+// Include version management
+require_once __DIR__ . '/../version.php';
+
 $currentUser = getCurrentUser();
 $flash = getFlash();
+
+// Check for updates
+$versionInfo = getVersionInfo();
+$updateAvailable = $versionInfo['updateAvailable'];
 
 // Get models for sidebar
 initDatabase();
@@ -61,6 +68,12 @@ $sidebarModels = getModelsWithStatus();
         </div>
         
         <div class="sidebar-footer">
+            <?php if ($updateAvailable): ?>
+                <a href="actions.php?action=update_admin" class="btn-update" onclick="return confirm('Update admin panel to version <?= e($versionInfo['vendor']) ?>?')">
+                    ⬆ Update Available (v<?= e($versionInfo['vendor']) ?>)
+                </a>
+            <?php endif; ?>
+            
             <div class="user-info">
                 <div class="user-avatar"><?= strtoupper(substr($currentUser ?? 'A', 0, 1)) ?></div>
                 <div class="user-details">
@@ -68,6 +81,7 @@ $sidebarModels = getModelsWithStatus();
                     <div class="user-role">Administrator</div>
                 </div>
             </div>
+            <div class="sidebar-version">v<?= PROXIMA_ADMIN_VERSION ?></div>
             <a href="index.php?logout=1" class="btn-logout">Logout</a>
         </div>
     </div>

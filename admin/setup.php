@@ -379,6 +379,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             copy($templatesDir . '/create.php', $adminDir . '/create.php');
             copy($templatesDir . '/edit.php', $adminDir . '/edit.php');
             copy($templatesDir . '/actions.php', $adminDir . '/actions.php');
+            copy($templatesDir . '/version.php', $adminDir . '/version.php');
             
             // Copy includes
             copy($templatesDir . '/includes/auth.php', $includesDir . '/auth.php');

@@ -138,6 +138,21 @@ try {
             header('Location: model.php?class=' . urlencode($class));
             exit;
         
+        // ===== UPDATE ADMIN PANEL =====
+        case 'update_admin':
+            require_once __DIR__ . '/version.php';
+            
+            $result = performUpdate();
+            
+            if ($result['success']) {
+                setFlash('success', $result['message']);
+            } else {
+                setFlash('error', $result['message'] . (isset($result['errors']) ? ' Errors: ' . implode(', ', $result['errors']) : ''));
+            }
+            
+            header('Location: index.php');
+            exit;
+        
         // ===== UNKNOWN ACTION =====
         default:
             throw new Exception('Unknown action: ' . $action);

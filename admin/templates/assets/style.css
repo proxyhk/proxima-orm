@@ -208,6 +208,49 @@ a {
     color: #ef4444;
 }
 
+.btn-update {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border: none;
+    color: #fff;
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    margin-bottom: 12px;
+    animation: pulse 2s infinite;
+}
+
+.btn-update:hover {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.85;
+    }
+}
+
+.sidebar-version {
+    font-size: 10px;
+    color: #52525b;
+    text-align: center;
+    padding: 8px 0;
+    border-top: 1px solid #27272a;
+    margin-top: 8px;
+}
+
 /* ===== MAIN CONTENT ===== */
 .main-content {
     margin-left: 260px;
