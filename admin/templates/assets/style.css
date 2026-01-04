@@ -405,7 +405,8 @@ a {
 
 .data-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 .data-table th {
@@ -986,17 +987,18 @@ a {
     scrollbar-color: #3f3f46 #09090b;
 }
 
-/* Sticky Actions Column */
+/* Sticky Actions Column - Right Side */
 .th-actions,
 .td-actions {
     position: sticky;
-    left: 0;
+    right: 0;
     z-index: 10;
     background: #18181b;
     text-align: center;
     white-space: nowrap;
     min-width: 130px;
-    border-right: 1px solid #27272a;
+    /* Use box-shadow instead of border for sticky effect */
+    box-shadow: -2px 0 4px rgba(0, 0, 0, 0.3);
 }
 
 .th-actions {
@@ -1010,4 +1012,5 @@ a {
 /* Table min-width for scrollable behavior */
 .table-scroll-container .data-table {
     min-width: 800px;
+    width: max-content;
 }

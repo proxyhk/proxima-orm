@@ -118,10 +118,10 @@ include __DIR__ . '/includes/header.php';
         <table class="data-table">
             <thead>
                 <tr>
-                    <th class="th-actions">Actions</th>
                     <?php foreach ($columns as $col): ?>
                         <th><?= e($col) ?></th>
                     <?php endforeach; ?>
+                    <th class="th-actions">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -145,6 +145,9 @@ include __DIR__ . '/includes/header.php';
                     <?php foreach ($records as $row): ?>
                         <?php $recordId = $row['id'] ?? $row[$columns[0]] ?? null; ?>
                         <tr>
+                            <?php foreach ($columns as $col): ?>
+                                <td title="<?= e($row[$col]) ?>"><?= formatValue($row[$col]) ?></td>
+                            <?php endforeach; ?>
                             <td class="td-actions">
                                 <a href="record.php?class=<?= urlencode($modelClass) ?>&id=<?= $recordId ?>" 
                                    class="action-btn view" title="View Details">👁️</a>
@@ -154,9 +157,6 @@ include __DIR__ . '/includes/header.php';
                                    class="action-btn delete" title="Delete"
                                    onclick="return confirmDelete()">🗑️</a>
                             </td>
-                            <?php foreach ($columns as $col): ?>
-                                <td title="<?= e($row[$col]) ?>"><?= formatValue($row[$col]) ?></td>
-                            <?php endforeach; ?>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
