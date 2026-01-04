@@ -153,6 +153,18 @@ try {
             header('Location: index.php');
             exit;
         
+        // ===== CHANGE LANGUAGE =====
+        case 'change_language':
+            $lang = $_GET['lang'] ?? $_POST['lang'] ?? null;
+            
+            if ($lang && in_array($lang, ['tr', 'en'])) {
+                setLanguage($lang);
+            }
+            
+            $referer = $_SERVER['HTTP_REFERER'] ?? 'index.php';
+            header('Location: ' . $referer);
+            exit;
+        
         // ===== UNKNOWN ACTION =====
         default:
             throw new Exception('Unknown action: ' . $action);

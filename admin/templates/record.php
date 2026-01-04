@@ -53,9 +53,9 @@ $backUrl = 'model.php?class=' . urlencode($modelClass);
 
 // Topbar actions
 $topbarActions = '
-    <a href="edit.php?class=' . urlencode($modelClass) . '&id=' . $recordId . '" class="btn btn-primary">✏️ Edit</a>
+    <a href="edit.php?class=' . urlencode($modelClass) . '&id=' . $recordId . '" class="btn btn-primary">✏️ ' . t('edit') . '</a>
     <a href="actions.php?action=delete_record&class=' . urlencode($modelClass) . '&id=' . $recordId . '" 
-       class="btn btn-danger" onclick="return confirmDelete()">🗑️ Delete</a>
+       class="btn btn-danger" onclick="return confirmDelete()">🗑️ ' . t('delete') . '</a>
 ';
 
 include __DIR__ . '/includes/header.php';
@@ -75,8 +75,8 @@ include __DIR__ . '/includes/header.php';
 </div>
 
 <div class="mt-3">
-    <a href="model.php?class=<?= urlencode($modelClass) ?>" class="btn btn-secondary">← Back to List</a>
-    <a href="edit.php?class=<?= urlencode($modelClass) ?>&id=<?= $recordId ?>" class="btn btn-primary">Edit Record</a>
+    <a href="model.php?class=<?= urlencode($modelClass) ?>" class="btn btn-secondary"><?= t('back_to_list') ?></a>
+    <a href="edit.php?class=<?= urlencode($modelClass) ?>&id=<?= $recordId ?>" class="btn btn-primary"><?= t('edit_record') ?></a>
 </div>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

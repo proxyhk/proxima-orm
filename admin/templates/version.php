@@ -24,6 +24,7 @@ define('PROXIMA_ADMIN_FILES', [
     'includes/functions.php',
     'includes/header.php',
     'includes/footer.php',
+    'includes/translations.php',
     
     // Asset files
     'assets/style.css',

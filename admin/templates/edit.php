@@ -47,7 +47,7 @@ if (!$record) {
 $currentModel = $modelClass;
 
 // Page settings
-$pageTitle = 'Edit ' . $modelInfo['shortName'] . ' #' . $recordId;
+$pageTitle = t('edit') . ' ' . $modelInfo['shortName'] . ' #' . $recordId;
 $showBackButton = true;
 $backUrl = 'record.php?class=' . urlencode($modelClass) . '&id=' . $recordId;
 
@@ -56,7 +56,7 @@ include __DIR__ . '/includes/header.php';
 
 <div class="card">
     <div class="card-header">
-        <h2>Edit <?= e($modelInfo['shortName']) ?> #<?= $recordId ?></h2>
+        <h2><?= t('edit') ?> <?= e($modelInfo['shortName']) ?> #<?= $recordId ?></h2>
     </div>
     
     <form method="POST" action="actions.php">
@@ -89,9 +89,9 @@ include __DIR__ . '/includes/header.php';
                     
                     <?php elseif ($config['type'] === 'boolean'): ?>
                         <select name="<?= e($fieldName) ?>" class="form-select" <?= $required ? 'required' : '' ?> <?= $readonly ?>>
-                            <option value="">-- Select --</option>
-                            <option value="1" <?= $value ? 'selected' : '' ?>>True</option>
-                            <option value="0" <?= !$value && $value !== null ? 'selected' : '' ?>>False</option>
+                            <option value=""><?= t('select') ?></option>
+                            <option value="1" <?= $value ? 'selected' : '' ?>><?= t('true') ?></option>
+                            <option value="0" <?= !$value && $value !== null ? 'selected' : '' ?>><?= t('false') ?></option>
                         </select>
                     
                     <?php elseif ($config['type'] === 'integer' || $config['type'] === 'bigint'): ?>
@@ -122,7 +122,7 @@ include __DIR__ . '/includes/header.php';
                                <?= $required ? 'required' : '' ?>
                                maxlength="<?= $config['length'] ?>" <?= $readonly ?>>
                         <?php if ($config['length'] && !$isPrimaryKey): ?>
-                            <div class="form-hint">Maximum length: <?= $config['length'] ?></div>
+                            <div class="form-hint"><?= t('maximum_length') ?>: <?= $config['length'] ?></div>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>
@@ -130,8 +130,8 @@ include __DIR__ . '/includes/header.php';
         </div>
         
         <div class="form-actions" style="padding: 20px 24px; margin-top: 0;">
-            <button type="submit" class="btn btn-cyan">Update Record</button>
-            <a href="record.php?class=<?= urlencode($modelClass) ?>&id=<?= $recordId ?>" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-cyan"><?= t('update_record') ?></button>
+            <a href="record.php?class=<?= urlencode($modelClass) ?>&id=<?= $recordId ?>" class="btn btn-secondary"><?= t('cancel') ?></a>
         </div>
     </form>
 </div>

@@ -14,6 +14,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Load translations
+require_once __DIR__ . '/translations.php';
+
 // Load Composer autoload
 $autoloadPaths = [
     __DIR__ . '/../../vendor/autoload.php',  // admin/includes -> project/vendor

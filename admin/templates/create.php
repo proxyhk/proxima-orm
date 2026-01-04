@@ -32,7 +32,7 @@ $schema = getModelSchema($modelClass);
 $currentModel = $modelClass;
 
 // Page settings
-$pageTitle = 'Create ' . $modelInfo['shortName'];
+$pageTitle = t('create') . ' ' . $modelInfo['shortName'];
 $showBackButton = true;
 $backUrl = 'model.php?class=' . urlencode($modelClass);
 
@@ -41,7 +41,7 @@ include __DIR__ . '/includes/header.php';
 
 <div class="card">
     <div class="card-header">
-        <h2>New <?= e($modelInfo['shortName']) ?></h2>
+        <h2><?= t('new') ?> <?= e($modelInfo['shortName']) ?></h2>
     </div>
     
     <form method="POST" action="actions.php">
@@ -67,28 +67,28 @@ include __DIR__ . '/includes/header.php';
                     <?php if ($config['type'] === 'text'): ?>
                         <textarea name="<?= e($fieldName) ?>" class="form-textarea" 
                                   <?= $required ? 'required' : '' ?>
-                                  placeholder="Enter <?= e($fieldName) ?>"></textarea>
+                                  placeholder="<?= t('enter') ?> <?= e($fieldName) ?>"></textarea>
                     
                     <?php elseif ($config['type'] === 'boolean'): ?>
                         <select name="<?= e($fieldName) ?>" class="form-select" <?= $required ? 'required' : '' ?>>
-                            <option value="">-- Select --</option>
-                            <option value="1">True</option>
-                            <option value="0">False</option>
+                            <option value=""><?= t('select') ?></option>
+                            <option value="1"><?= t('true') ?></option>
+                            <option value="0"><?= t('false') ?></option>
                         </select>
                     
                     <?php elseif ($config['type'] === 'integer'): ?>
                         <input type="number" name="<?= e($fieldName) ?>" class="form-input" 
                                <?= $required ? 'required' : '' ?> step="1"
-                               placeholder="Enter <?= e($fieldName) ?>">
+                               placeholder="<?= t('enter') ?> <?= e($fieldName) ?>">
                         <?php if ($config['length']): ?>
-                            <div class="form-hint">Maximum: <?= $config['length'] ?></div>
+                            <div class="form-hint"><?= t('maximum') ?>: <?= $config['length'] ?></div>
                         <?php endif; ?>
                     
                     <?php elseif ($config['type'] === 'decimal'): ?>
                         <input type="number" name="<?= e($fieldName) ?>" class="form-input" 
                                <?= $required ? 'required' : '' ?> step="0.01"
-                               placeholder="Enter <?= e($fieldName) ?>">
-                        <div class="form-hint">Format: <?= $config['length'] ?>,<?= $config['scale'] ?></div>
+                               placeholder="<?= t('enter') ?> <?= e($fieldName) ?>">
+                        <div class="form-hint"><?= t('format') ?>: <?= $config['length'] ?>,<?= $config['scale'] ?></div>
                     
                     <?php elseif ($config['type'] === 'datetime'): ?>
                         <input type="datetime-local" name="<?= e($fieldName) ?>" class="form-input" 
@@ -98,20 +98,20 @@ include __DIR__ . '/includes/header.php';
                         <input type="text" name="<?= e($fieldName) ?>" class="form-input" 
                                <?= $required ? 'required' : '' ?>
                                maxlength="<?= $config['length'] ?>"
-                               placeholder="Enter <?= e($fieldName) ?>">
-                        <div class="form-hint">Maximum length: <?= $config['length'] ?></div>
+                               placeholder="<?= t('enter') ?> <?= e($fieldName) ?>">
+                        <div class="form-hint"><?= t('maximum_length') ?>: <?= $config['length'] ?></div>
                     <?php endif; ?>
                     
                     <?php if ($config['default'] !== null): ?>
-                        <div class="form-hint">Default: <?= e($config['default']) ?></div>
+                        <div class="form-hint"><?= t('default') ?>: <?= e($config['default']) ?></div>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>
         
         <div class="form-actions" style="padding: 20px 24px; margin-top: 0;">
-            <button type="submit" class="btn btn-cyan">Create Record</button>
-            <a href="model.php?class=<?= urlencode($modelClass) ?>" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-cyan"><?= t('create_record') ?></button>
+            <a href="model.php?class=<?= urlencode($modelClass) ?>" class="btn btn-secondary"><?= t('cancel') ?></a>
         </div>
     </form>
 </div>

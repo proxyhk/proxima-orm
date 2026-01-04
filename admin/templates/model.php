@@ -72,13 +72,13 @@ if ($search !== '') {
 }
 
 // Page settings
-$pageTitle = $modelInfo['shortName'] . ' Records';
+$pageTitle = $modelInfo['shortName'] . ' ' . t('records');
 $showBackButton = true;
 $backUrl = 'index.php';
 
 // Topbar actions
 $topbarActions = '
-    <a href="create.php?class=' . urlencode($modelClass) . '" class="btn btn-cyan">✚ Create New</a>
+    <a href="create.php?class=' . urlencode($modelClass) . '" class="btn btn-cyan">' . t('create_new') . '</a>
 ';
 
 include __DIR__ . '/includes/header.php';
@@ -88,25 +88,25 @@ include __DIR__ . '/includes/header.php';
 <div class="toolbar">
     <div class="toolbar-left">
         <span class="data-count">
-            <strong><?= $pagination['total'] ?></strong> record<?= $pagination['total'] !== 1 ? 's' : '' ?>
+            <strong><?= $pagination['total'] ?></strong> <?= $pagination['total'] !== 1 ? t('record_count_plural') : t('record_count') ?>
             <?php if ($search !== ''): ?>
-                matching "<?= e($search) ?>"
+                <?= t('matching') ?> "<?= e($search) ?>"
             <?php endif; ?>
         </span>
     </div>
     <div class="toolbar-right">
         <form method="GET" class="search-form">
             <input type="hidden" name="class" value="<?= e($modelClass) ?>">
-            <input type="text" name="search" value="<?= e($search) ?>" placeholder="Search..." class="search-input">
+            <input type="text" name="search" value="<?= e($search) ?>" placeholder="<?= t('search') ?>..." class="search-input">
             <select name="column" class="search-select">
-                <option value="all" <?= $searchColumn === 'all' ? 'selected' : '' ?>>All Columns</option>
+                <option value="all" <?= $searchColumn === 'all' ? 'selected' : '' ?>><?= t('all_columns') ?></option>
                 <?php foreach ($columns as $col): ?>
                     <option value="<?= e($col) ?>" <?= $searchColumn === $col ? 'selected' : '' ?>><?= e($col) ?></option>
                 <?php endforeach; ?>
             </select>
-            <button type="submit" class="btn btn-secondary">Search</button>
+            <button type="submit" class="btn btn-secondary"><?= t('search') ?></button>
             <?php if ($search !== ''): ?>
-                <a href="model.php?class=<?= urlencode($modelClass) ?>" class="btn btn-danger btn-sm">✕ Clear</a>
+                <a href="model.php?class=<?= urlencode($modelClass) ?>" class="btn btn-danger btn-sm"><?= t('clear') ?></a>
             <?php endif; ?>
         </form>
     </div>
@@ -150,11 +150,11 @@ include __DIR__ . '/includes/header.php';
                             <?php endforeach; ?>
                             <td class="td-actions">
                                 <a href="record.php?class=<?= urlencode($modelClass) ?>&id=<?= $recordId ?>" 
-                                   class="action-btn view" title="View Details">👁️</a>
+                                   class="action-btn view" title="<?= t('view_details') ?>">👁️</a>
                                 <a href="edit.php?class=<?= urlencode($modelClass) ?>&id=<?= $recordId ?>" 
-                                   class="action-btn edit" title="Edit">✏️</a>
+                                   class="action-btn edit" title="<?= t('edit') ?>">✏️</a>
                                 <a href="actions.php?action=delete_record&class=<?= urlencode($modelClass) ?>&id=<?= $recordId ?>" 
-                                   class="action-btn delete" title="Delete"
+                                   class="action-btn delete" title="<?= t('delete') ?>"
                                    onclick="return confirmDelete()">🗑️</a>
                             </td>
                         </tr>
@@ -171,22 +171,22 @@ include __DIR__ . '/includes/header.php';
     <div class="pagination-links">
         <?php if ($pagination['hasPrev']): ?>
             <a href="model.php?class=<?= urlencode($modelClass) ?>&page=<?= $page - 1 ?><?= $search ? '&search=' . urlencode($search) . '&column=' . urlencode($searchColumn) : '' ?>" 
-               class="pagination-btn">← Previous</a>
+               class="pagination-btn"><?= t('previous') ?></a>
         <?php else: ?>
-            <button class="pagination-btn" disabled>← Previous</button>
+            <button class="pagination-btn" disabled><?= t('previous') ?></button>
         <?php endif; ?>
     </div>
     
     <span class="pagination-info">
-        Page <?= $pagination['page'] ?> of <?= $pagination['totalPages'] ?>
+        <?= t('page_of') ?> <?= $pagination['page'] ?> <?= t('of') ?> <?= $pagination['totalPages'] ?>
     </span>
     
     <div class="pagination-links">
         <?php if ($pagination['hasNext']): ?>
             <a href="model.php?class=<?= urlencode($modelClass) ?>&page=<?= $page + 1 ?><?= $search ? '&search=' . urlencode($search) . '&column=' . urlencode($searchColumn) : '' ?>" 
-               class="pagination-btn">Next →</a>
+               class="pagination-btn"><?= t('next') ?></a>
         <?php else: ?>
-            <button class="pagination-btn" disabled>Next →</button>
+            <button class="pagination-btn" disabled><?= t('next') ?></button>
         <?php endif; ?>
     </div>
 </div>

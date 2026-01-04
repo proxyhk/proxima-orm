@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         header('Location: index.php');
         exit;
     } else {
-        $loginError = 'Invalid username or password';
+        $loginError = t('invalid_credentials');
     }
 }
 
@@ -37,7 +37,7 @@ if (!isAuthenticated()):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Proxima Admin</title>
+    <title><?= t('login') ?> - Proxima Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="assets/style.css" rel="stylesheet">
 </head>
@@ -46,7 +46,7 @@ if (!isAuthenticated()):
         <div class="login-box">
             <div class="login-header">
                 <div class="login-brand"><span>◆</span> Proxima</div>
-                <h1 class="login-title">Admin Login</h1>
+                <h1 class="login-title"><?= t('admin_login') ?></h1>
             </div>
             
             <?php if (isset($loginError)): ?>
@@ -56,18 +56,18 @@ if (!isAuthenticated()):
             <form method="POST">
                 <div class="login-content">
                     <div class="form-group">
-                        <label class="form-label">Username</label>
+                        <label class="form-label"><?= t('username') ?></label>
                         <input type="text" name="username" class="form-input" required autofocus>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">Password</label>
+                        <label class="form-label"><?= t('password') ?></label>
                         <input type="password" name="password" class="form-input" required>
                     </div>
                 </div>
                 
                 <div class="login-footer">
-                    <button type="submit" name="login" class="btn-login">Sign In →</button>
+                    <button type="submit" name="login" class="btn-login"><?= t('sign_in') ?></button>
                 </div>
             </form>
         </div>
@@ -79,7 +79,7 @@ if (!isAuthenticated()):
 <?php
 // === AUTHENTICATED DASHBOARD ===
 
-$pageTitle = 'Database Management';
+$pageTitle = t('database_management');
 initDatabase();
 $models = getModelsWithStatus();
 
@@ -91,8 +91,8 @@ $orphanedCount = count(array_filter($models, fn($m) => $m['status'] === 'orphane
 
 // Topbar actions
 $topbarActions = '
-    <a href="actions.php?action=sync_all" class="btn btn-primary" onclick="return confirmAction(\'Sync all models?\')">Sync All</a>
-    <a href="actions.php?action=fresh" class="btn btn-danger" onclick="return confirmFreshMigration()">Fresh Migration</a>
+    <a href="actions.php?action=sync_all" class="btn btn-primary" onclick="return confirmAction(\'' . t('confirm_sync_all') . '\')">' . t('sync_all') . '</a>
+    <a href="actions.php?action=fresh" class="btn btn-danger" onclick="return confirmFreshMigration()">' . t('fresh_migration') . '</a>
 ';
 
 include __DIR__ . '/includes/header.php';
@@ -101,19 +101,19 @@ include __DIR__ . '/includes/header.php';
 <!-- Stats Grid -->
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-label">Total Models</div>
+        <div class="stat-label"><?= t('total_models') ?></div>
         <div class="stat-value"><?= $totalModels ?></div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Synced</div>
+        <div class="stat-label"><?= t('synced') ?></div>
         <div class="stat-value"><?= $syncedCount ?></div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Pending Changes</div>
+        <div class="stat-label"><?= t('pending_changes') ?></div>
         <div class="stat-value"><?= $pendingCount ?></div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Orphaned Tables</div>
+        <div class="stat-label"><?= t('orphaned_tables') ?></div>
         <div class="stat-value <?= $orphanedCount > 0 ? 'danger' : '' ?>"><?= $orphanedCount ?></div>
     </div>
 </div>
@@ -121,16 +121,16 @@ include __DIR__ . '/includes/header.php';
 <!-- Models Table -->
 <div class="card">
     <div class="card-header">
-        <h2>All Models</h2>
+        <h2><?= t('all_models') ?></h2>
     </div>
     
     <table class="data-table">
         <thead>
             <tr>
-                <th>Model</th>
-                <th>Table Name</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th><?= t('model') ?></th>
+                <th><?= t('table_name') ?></th>
+                <th><?= t('status') ?></th>
+                <th><?= t('actions') ?></th>
             </tr>
         </thead>
         <tbody>
@@ -139,8 +139,8 @@ include __DIR__ . '/includes/header.php';
                     <td colspan="4">
                         <div class="empty-state">
                             <div class="empty-icon">◆</div>
-                            <div class="empty-title">No Models Found</div>
-                            <div class="empty-text">Create model files in the models/ directory</div>
+                            <div class="empty-title"><?= t('no_models_found') ?></div>
+                            <div class="empty-text"><?= t('create_models_hint') ?></div>
                         </div>
                     </td>
                 </tr>
@@ -165,26 +165,26 @@ include __DIR__ . '/includes/header.php';
                         </td>
                         <td>
                             <?php if ($model['status'] === 'synced'): ?>
-                                <span class="status-badge status-synced">✓ Synced</span>
+                                <span class="status-badge status-synced"><?= t('synced_badge') ?></span>
                             <?php elseif ($model['status'] === 'orphaned'): ?>
-                                <span class="status-badge status-orphaned">✗ Orphaned</span>
+                                <span class="status-badge status-orphaned"><?= t('orphaned_badge') ?></span>
                             <?php else: ?>
-                                <span class="status-badge status-pending">! Pending</span>
+                                <span class="status-badge status-pending"><?= t('pending_badge') ?></span>
                                 <?php if ($model['hasDestructive']): ?>
-                                    <span class="status-badge status-destructive">⚠ Data Loss</span>
+                                    <span class="status-badge status-destructive"><?= t('data_loss_warning') ?></span>
                                 <?php endif; ?>
                             <?php endif; ?>
                         </td>
                         <td class="actions">
                             <?php if (!$model['isOrphaned']): ?>
-                                <a href="model.php?class=<?= urlencode($model['className']) ?>" class="btn btn-sm btn-secondary">View</a>
+                                <a href="model.php?class=<?= urlencode($model['className']) ?>" class="btn btn-sm btn-secondary"><?= t('view') ?></a>
                                 <a href="actions.php?action=sync&class=<?= urlencode($model['className']) ?>" 
                                    class="btn btn-sm btn-primary"
-                                   onclick="return confirmAction('Sync model <?= e($model['shortName']) ?>?')">Sync</a>
+                                   onclick="return confirmAction('<?= t('confirm_sync_model') ?> <?= e($model['shortName']) ?>?')"><?= t('sync') ?></a>
                             <?php endif; ?>
                             <a href="actions.php?action=delete_table&table=<?= urlencode($model['tableName']) ?>" 
                                class="btn btn-sm btn-danger"
-                               onclick="return confirmDeleteTable('<?= e($model['tableName']) ?>')">Delete</a>
+                               onclick="return confirmDeleteTable('<?= e($model['tableName']) ?>')"><?= t('delete') ?></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

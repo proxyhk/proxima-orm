@@ -155,6 +155,39 @@ a {
     border-top: 1px solid #27272a;
 }
 
+/* Language Selector */
+.language-selector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 4px;
+    background: #09090b;
+    border-radius: 6px;
+}
+
+.lang-option {
+    flex: 1;
+    padding: 6px 8px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #71717a;
+    background: transparent;
+    border-radius: 4px;
+    transition: all 0.15s;
+    cursor: pointer;
+}
+
+.lang-option:hover {
+    color: #a1a1aa;
+    background: #18181b;
+}
+
+.lang-option.active {
+    color: #22d3ee;
+    background: #18181b;
+}
+
 .user-info {
     display: flex;
     align-items: center;
