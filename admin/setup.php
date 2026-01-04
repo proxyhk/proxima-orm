@@ -359,9 +359,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ];
             Settings::create($projectDir, $config);
             
-            // Copy admin files directly to admin/ folder (no token subfolder)
-            copy(__DIR__ . '/templates/index.php', $adminDir . '/index.php');
-            copy(__DIR__ . '/templates/api.php', $adminDir . '/api.php');
+            // Copy admin files to admin/ folder
+            $templatesDir = __DIR__ . '/templates';
+            
+            // Create subdirectories
+            $includesDir = $adminDir . '/includes';
+            $assetsDir = $adminDir . '/assets';
+            if (!is_dir($includesDir)) {
+                mkdir($includesDir, 0755, true);
+            }
+            if (!is_dir($assetsDir)) {
+                mkdir($assetsDir, 0755, true);
+            }
+            
+            // Copy main PHP files
+            copy($templatesDir . '/index.php', $adminDir . '/index.php');
+            copy($templatesDir . '/model.php', $adminDir . '/model.php');
+            copy($templatesDir . '/record.php', $adminDir . '/record.php');
+            copy($templatesDir . '/create.php', $adminDir . '/create.php');
+            copy($templatesDir . '/edit.php', $adminDir . '/edit.php');
+            copy($templatesDir . '/actions.php', $adminDir . '/actions.php');
+            
+            // Copy includes
+            copy($templatesDir . '/includes/auth.php', $includesDir . '/auth.php');
+            copy($templatesDir . '/includes/functions.php', $includesDir . '/functions.php');
+            copy($templatesDir . '/includes/header.php', $includesDir . '/header.php');
+            copy($templatesDir . '/includes/footer.php', $includesDir . '/footer.php');
+            
+            // Copy assets
+            copy($templatesDir . '/assets/style.css', $assetsDir . '/style.css');
+            copy($templatesDir . '/assets/app.js', $assetsDir . '/app.js');
             
             $_SESSION['setup_complete'] = true;
             $_SESSION['admin_token'] = $token;
@@ -383,8 +410,8 @@ if ($step === 'complete' && isset($_SESSION['setup_complete'])):
     $projectDir = $_SESSION['admin_project_dir'];
     $projectName = basename($projectDir);
     
-    // Admin URL is in USER PROJECT: admin/index.php?token=xxx
-    $adminUrl = "http://{$_SERVER['HTTP_HOST']}/{$projectName}/admin/index.php?token={$token}";
+    // Admin URL is now simple - no token needed
+    $adminUrl = "http://{$_SERVER['HTTP_HOST']}/{$projectName}/admin/";
     
     session_destroy();
 ?>
