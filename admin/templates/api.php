@@ -2,6 +2,8 @@
 /**
  * Proxima Admin Panel - API Endpoints
  * Handles AJAX requests from admin panel
+ * 
+ * Authentication: Session-based (no token required)
  */
 
 // Session lifetime: 30 days (BEFORE session_start!)
@@ -37,28 +39,20 @@ set_error_handler(function($errno, $errstr, $errfile, $errline) {
 header('Content-Type: application/json');
 
 try {
-    // Get project directory (1 level up: admin -> project)
-    $projectDir = dirname(__DIR__);
-    
-    // Load settings for token verification
-    $settings = Settings::load($projectDir);
-    
-    // Verify token from request
-    $requestToken = $_GET['token'] ?? $_POST['token'] ?? null;
-    
-    // Also check JSON body for token
-    if (!$requestToken && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $input = json_decode(file_get_contents('php://input'), true);
-        $requestToken = $input['token'] ?? null;
-    }
-    
-    if (!$requestToken || $requestToken !== $settings['admin']['token']) {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'error' => 'Invalid token']);
+    // Check session authentication
+    if (!isset($_SESSION['proxima_admin_authenticated']) || $_SESSION['proxima_admin_authenticated'] !== true) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'error' => 'Not authenticated. Please login.']);
         exit;
     }
     
+    // Get project directory (1 level up: admin -> project)
+    $projectDir = dirname(__DIR__);
+    
     // Load settings
+    $settings = Settings::load($projectDir);
+    
+    // Connect to database and load models
     Database::connect($settings['database']);
     ModelDiscovery::loadFromModelsDirectory($settings['project_dir']);
     

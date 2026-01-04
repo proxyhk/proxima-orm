@@ -2,6 +2,8 @@
 /**
  * Proxima Admin Panel - Professional Interface
  * Modern sidebar design with table management
+ * 
+ * Access: /admin/ (no token required, just username/password)
  */
 
 // Session lifetime: 30 days (BEFORE session_start!)
@@ -29,25 +31,12 @@ use Proxima\Core\ModelDiscovery;
 // Get project directory (1 level up: admin -> project)
 $projectDir = dirname(__DIR__);
 
-// Verify token from URL parameter or session
-$currentToken = $_GET['token'] ?? $_SESSION['proxima_admin_token'] ?? null;
-
-if (!$currentToken) {
-    http_response_code(403);
-    die('<h1 style="text-align: center; margin-top: 100px; color: #ef4444;">Access Denied - Token Required</h1><p style="text-align: center; color: #94a3b8;">Please use the correct URL with token parameter.</p>');
-}
-
+// Load settings
 try {
     $settings = Settings::load($projectDir);
-    
-    // Check if token matches
-    if (!isset($settings['admin']['token']) || $settings['admin']['token'] !== $currentToken) {
-        http_response_code(403);
-        die('<h1 style="text-align: center; margin-top: 100px; color: #ef4444;">Access Denied - Invalid Token</h1>');
-    }
 } catch (Exception $e) {
     http_response_code(500);
-    die('<h1 style="text-align: center; margin-top: 100px; color: #ef4444;">Configuration Error</h1>');
+    die('<h1 style="text-align: center; margin-top: 100px; color: #ef4444;">Configuration Error</h1><p style="text-align: center; color: #94a3b8;">' . htmlspecialchars($e->getMessage()) . '</p>');
 }
 
 // Handle login
@@ -59,8 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         $_SESSION['proxima_admin_authenticated'] = true;
         $_SESSION['proxima_admin_user'] = $username;
         $_SESSION['proxima_admin_login_time'] = time();
-        $_SESSION['proxima_admin_token'] = $currentToken; // Store token in session
-        header('Location: ' . $_SERVER['PHP_SELF'] . '?token=' . urlencode($currentToken));
+        $_SESSION['proxima_admin_project_dir'] = $projectDir; // Store project dir for API
+        header('Location: ' . $_SERVER['PHP_SELF']);
         exit;
     } else {
         $loginError = 'Invalid username or password';
@@ -70,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
 // Handle logout
 if (isset($_GET['logout'])) {
     session_destroy();
-    header('Location: ' . $_SERVER['PHP_SELF'] . '?token=' . urlencode($currentToken));
+    header('Location: ' . $_SERVER['PHP_SELF']);
     exit;
 }
 
@@ -983,7 +972,7 @@ $currentUser = $_SESSION['proxima_admin_user'];
                     <div class="user-role">Administrator</div>
                 </div>
             </div>
-            <a href="?logout=1&token=<?php echo urlencode($currentToken); ?>" class="btn-logout">Logout</a>
+            <a href="?logout=1" class="btn-logout">Logout</a>
         </div>
     </div>
     
@@ -1137,7 +1126,7 @@ $currentUser = $_SESSION['proxima_admin_user'];
     </div>
     
     <script>
-        const ADMIN_TOKEN = '<?php echo htmlspecialchars($currentToken); ?>';
+        // Session-based auth - no token needed in JavaScript
         let modelsData = [];
         let currentModel = null;
         let currentPage = 1;
@@ -1236,12 +1225,7 @@ $currentUser = $_SESSION['proxima_admin_user'];
         
         // Update URL without page reload
         function updateURL(model = null, modelName = null, page = null, recordId = null) {
-            const params = new URLSearchParams(window.location.search);
-            
-            // Keep token
-            const token = params.get('token');
             const newParams = new URLSearchParams();
-            if (token) newParams.set('token', token);
             
             if (model && modelName) {
                 newParams.set('model', model);
@@ -1250,13 +1234,13 @@ $currentUser = $_SESSION['proxima_admin_user'];
                 if (recordId) newParams.set('recordId', recordId);
             }
             
-            const newURL = window.location.pathname + '?' + newParams.toString();
+            const newURL = window.location.pathname + (newParams.toString() ? '?' + newParams.toString() : '');
             window.history.pushState({}, '', newURL);
         }
         
         async function loadModels() {
             try {
-                const response = await fetch('api.php?action=getModels&token=' + encodeURIComponent(ADMIN_TOKEN));
+                const response = await fetch('api.php?action=getModels');
                 const data = await response.json();
                 
                 if (!data.success) {
@@ -1449,11 +1433,7 @@ $currentUser = $_SESSION['proxima_admin_user'];
             }
             
             try {
-                const response = await fetch('api.php?token=' + encodeURIComponent(ADMIN_TOKEN), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'sync', model: className, token: ADMIN_TOKEN })
-                });
+                const response = await fetch('api.php', {\r\n                    method: 'POST',\r\n                    headers: { 'Content-Type': 'application/json' },\r\n                    body: JSON.stringify({ action: 'sync', model: className })\r\n                });
                 
                 const data = await response.json();
                 
@@ -1472,10 +1452,10 @@ $currentUser = $_SESSION['proxima_admin_user'];
             if (!confirm('Sync all models? This may take a while.')) return;
             
             try {
-                const response = await fetch('api.php?token=' + encodeURIComponent(ADMIN_TOKEN), {
+                const response = await fetch('api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'syncAll', token: ADMIN_TOKEN })
+                    body: JSON.stringify({ action: 'syncAll' })
                 });
                 
                 const data = await response.json();
@@ -1495,10 +1475,10 @@ $currentUser = $_SESSION['proxima_admin_user'];
             if (!confirm(`Delete table "${tableName}"? This will permanently remove the table and all its data.`)) return;
             
             try {
-                const response = await fetch('api.php?token=' + encodeURIComponent(ADMIN_TOKEN), {
+                const response = await fetch('api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'deleteTable', table: tableName, token: ADMIN_TOKEN })
+                    body: JSON.stringify({ action: 'deleteTable', table: tableName })
                 });
                 
                 const data = await response.json();
@@ -1554,15 +1534,14 @@ $currentUser = $_SESSION['proxima_admin_user'];
             try {
                 document.getElementById('dataTableBody').innerHTML = '<tr><td colspan="100" class="loading">Loading records...</td></tr>';
                 
-                const response = await fetch('api.php?token=' + encodeURIComponent(ADMIN_TOKEN), {
+                const response = await fetch('api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         action: 'getRecords', 
                         model: currentModel,
                         page: currentPage,
-                        perPage: perPage,
-                        token: ADMIN_TOKEN 
+                        perPage: perPage
                     })
                 });
                 
@@ -1773,10 +1752,10 @@ $currentUser = $_SESSION['proxima_admin_user'];
             }
             
             try {
-                const response = await fetch('api.php?token=' + encodeURIComponent(ADMIN_TOKEN), {
+                const response = await fetch('api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'fresh', token: ADMIN_TOKEN })
+                    body: JSON.stringify({ action: 'fresh' })
                 });
                 
                 const data = await response.json();
@@ -1801,13 +1780,12 @@ $currentUser = $_SESSION['proxima_admin_user'];
             
             try {
                 // Get model schema
-                const response = await fetch('api.php?token=' + encodeURIComponent(ADMIN_TOKEN), {
+                const response = await fetch('api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         action: 'getModelSchema', 
-                        model: currentModel,
-                        token: ADMIN_TOKEN 
+                        model: currentModel
                     })
                 });
                 
@@ -1916,14 +1894,13 @@ $currentUser = $_SESSION['proxima_admin_user'];
             }
             
             try {
-                const response = await fetch('api.php?token=' + encodeURIComponent(ADMIN_TOKEN), {
+                const response = await fetch('api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         action: 'createRecord', 
                         model: currentModel,
-                        data: data,
-                        token: ADMIN_TOKEN 
+                        data: data
                     })
                 });
                 
@@ -1951,14 +1928,13 @@ $currentUser = $_SESSION['proxima_admin_user'];
             
             try {
                 // Get record data
-                const recordResponse = await fetch('api.php?token=' + encodeURIComponent(ADMIN_TOKEN), {
+                const recordResponse = await fetch('api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         action: 'getRecord', 
                         model: currentModel,
-                        id: recordId,
-                        token: ADMIN_TOKEN 
+                        id: recordId
                     })
                 });
                 
@@ -1970,13 +1946,12 @@ $currentUser = $_SESSION['proxima_admin_user'];
                 
                 // Get schema if not cached
                 if (!modelSchema) {
-                    const schemaResponse = await fetch('api.php?token=' + encodeURIComponent(ADMIN_TOKEN), {
+                    const schemaResponse = await fetch('api.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
                             action: 'getModelSchema', 
-                            model: currentModel,
-                            token: ADMIN_TOKEN 
+                            model: currentModel
                         })
                     });
                     
@@ -2086,15 +2061,14 @@ $currentUser = $_SESSION['proxima_admin_user'];
             }
             
             try {
-                const response = await fetch('api.php?token=' + encodeURIComponent(ADMIN_TOKEN), {
+                const response = await fetch('api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         action: 'updateRecord', 
                         model: currentModel,
                         id: currentRecordId,
-                        data: data,
-                        token: ADMIN_TOKEN 
+                        data: data
                     })
                 });
                 
@@ -2121,14 +2095,13 @@ $currentUser = $_SESSION['proxima_admin_user'];
             }
             
             try {
-                const response = await fetch('api.php?token=' + encodeURIComponent(ADMIN_TOKEN), {
+                const response = await fetch('api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         action: 'deleteRecord', 
                         model: currentModel,
-                        id: recordId,
-                        token: ADMIN_TOKEN 
+                        id: recordId
                     })
                 });
                 
@@ -2171,14 +2144,13 @@ $currentUser = $_SESSION['proxima_admin_user'];
             
             try {
                 // Get record data
-                const response = await fetch('api.php?token=' + encodeURIComponent(ADMIN_TOKEN), {
+                const response = await fetch('api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         action: 'getRecord', 
                         model: currentModel,
-                        id: recordId,
-                        token: ADMIN_TOKEN 
+                        id: recordId
                     })
                 });
                 
