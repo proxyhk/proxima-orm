@@ -183,6 +183,285 @@ try {
             ]);
             break;
             
+        case 'getRecords':
+            $modelClass = $input['model'] ?? null;
+            $page = max(1, (int)($input['page'] ?? 1));
+            $perPage = max(1, min(100, (int)($input['perPage'] ?? 20)));
+            
+            if (!$modelClass) {
+                throw new Exception('Model class name required');
+            }
+            
+            if (!class_exists($modelClass)) {
+                throw new Exception("Model class '$modelClass' not found");
+            }
+            
+            // Calculate offset
+            $offset = ($page - 1) * $perPage;
+            
+            // Get total count
+            $total = $modelClass::query()->count();
+            
+            // Get records with pagination
+            $records = $modelClass::query()
+                ->limit($perPage)
+                ->offset($offset)
+                ->get();
+            
+            // Get column names from first record or model reflection
+            $columns = [];
+            if (!empty($records)) {
+                $columns = array_keys(get_object_vars($records[0]));
+            } else {
+                // If no records, get columns from model reflection
+                $reflection = new ReflectionClass($modelClass);
+                foreach ($reflection->getProperties() as $property) {
+                    $colAttributes = $property->getAttributes(\Proxima\Attributes\Column::class);
+                    if (!empty($colAttributes)) {
+                        $columns[] = $property->getName();
+                    }
+                }
+            }
+            
+            // Convert records to arrays
+            $data = [];
+            foreach ($records as $record) {
+                $row = [];
+                foreach ($columns as $col) {
+                    $row[$col] = $record->$col ?? null;
+                }
+                $data[] = $row;
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'data' => $data,
+                'columns' => $columns,
+                'pagination' => [
+                    'page' => $page,
+                    'perPage' => $perPage,
+                    'total' => $total,
+                    'totalPages' => ceil($total / $perPage),
+                    'hasNext' => $page < ceil($total / $perPage),
+                    'hasPrev' => $page > 1,
+                ],
+            ]);
+            break;
+            
+        case 'getModelSchema':
+            $modelClass = $input['model'] ?? null;
+            
+            if (!$modelClass) {
+                throw new Exception('Model class name required');
+            }
+            
+            if (!class_exists($modelClass)) {
+                throw new Exception("Model class '$modelClass' not found");
+            }
+            
+            // Get model schema using reflection
+            $reflection = new ReflectionClass($modelClass);
+            $schema = [];
+            
+            foreach ($reflection->getProperties() as $property) {
+                $colAttributes = $property->getAttributes(\Proxima\Attributes\Column::class);
+                
+                if (!empty($colAttributes)) {
+                    $column = $colAttributes[0]->newInstance();
+                    $colName = $property->getName();
+                    
+                    $schema[$colName] = [
+                        'type' => $column->type,
+                        'length' => $column->length,
+                        'scale' => $column->scale,
+                        'nullable' => $column->nullable,
+                        'primaryKey' => $column->primaryKey,
+                        'autoIncrement' => $column->autoIncrement,
+                        'unique' => $column->unique,
+                        'default' => $column->default,
+                    ];
+                }
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'schema' => $schema,
+            ]);
+            break;
+            
+        case 'createRecord':
+            $modelClass = $input['model'] ?? null;
+            $data = $input['data'] ?? null;
+            
+            if (!$modelClass) {
+                throw new Exception('Model class name required');
+            }
+            
+            if (!$data || !is_array($data)) {
+                throw new Exception('Record data required');
+            }
+            
+            if (!class_exists($modelClass)) {
+                throw new Exception("Model class '$modelClass' not found");
+            }
+            
+            // Create new model instance
+            $record = new $modelClass();
+            
+            // Set properties
+            foreach ($data as $key => $value) {
+                if (property_exists($record, $key)) {
+                    // Handle empty values for nullable fields
+                    if ($value === '' || $value === null) {
+                        $record->$key = null;
+                    } else {
+                        $record->$key = $value;
+                    }
+                }
+            }
+            
+            // Save record
+            $record->save();
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Record created successfully',
+                'id' => $record->id ?? null,
+            ]);
+            break;
+            
+        case 'updateRecord':
+            $modelClass = $input['model'] ?? null;
+            $id = $input['id'] ?? null;
+            $data = $input['data'] ?? null;
+            
+            if (!$modelClass) {
+                throw new Exception('Model class name required');
+            }
+            
+            if (!$id) {
+                throw new Exception('Record ID required');
+            }
+            
+            if (!$data || !is_array($data)) {
+                throw new Exception('Record data required');
+            }
+            
+            if (!class_exists($modelClass)) {
+                throw new Exception("Model class '$modelClass' not found");
+            }
+            
+            // Find existing record
+            $record = $modelClass::find($id);
+            
+            if (!$record) {
+                throw new Exception("Record with ID=$id not found");
+            }
+            
+            // Update properties
+            foreach ($data as $key => $value) {
+                if (property_exists($record, $key)) {
+                    // Skip primary key
+                    $reflection = new ReflectionClass($modelClass);
+                    $property = $reflection->getProperty($key);
+                    $colAttributes = $property->getAttributes(\Proxima\Attributes\Column::class);
+                    
+                    if (!empty($colAttributes)) {
+                        $column = $colAttributes[0]->newInstance();
+                        if ($column->primaryKey) {
+                            continue; // Skip primary key
+                        }
+                    }
+                    
+                    // Handle empty values for nullable fields
+                    if ($value === '' || $value === null) {
+                        $record->$key = null;
+                    } else {
+                        $record->$key = $value;
+                    }
+                }
+            }
+            
+            // Save record
+            $record->save();
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Record updated successfully',
+            ]);
+            break;
+            
+        case 'deleteRecord':
+            $modelClass = $input['model'] ?? null;
+            $id = $input['id'] ?? null;
+            
+            if (!$modelClass) {
+                throw new Exception('Model class name required');
+            }
+            
+            if (!$id) {
+                throw new Exception('Record ID required');
+            }
+            
+            if (!class_exists($modelClass)) {
+                throw new Exception("Model class '$modelClass' not found");
+            }
+            
+            // Find and delete record
+            $record = $modelClass::find($id);
+            
+            if (!$record) {
+                throw new Exception("Record with ID=$id not found");
+            }
+            
+            $record->delete();
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Record deleted successfully',
+            ]);
+            break;
+            
+        case 'getRecord':
+            $modelClass = $input['model'] ?? null;
+            $id = $input['id'] ?? null;
+            
+            if (!$modelClass) {
+                throw new Exception('Model class name required');
+            }
+            
+            if (!$id) {
+                throw new Exception('Record ID required');
+            }
+            
+            if (!class_exists($modelClass)) {
+                throw new Exception("Model class '$modelClass' not found");
+            }
+            
+            // Find record
+            $record = $modelClass::find($id);
+            
+            if (!$record) {
+                throw new Exception("Record with ID=$id not found");
+            }
+            
+            // Get all properties
+            $data = [];
+            $reflection = new ReflectionClass($modelClass);
+            foreach ($reflection->getProperties() as $property) {
+                $colAttributes = $property->getAttributes(\Proxima\Attributes\Column::class);
+                if (!empty($colAttributes)) {
+                    $propName = $property->getName();
+                    $data[$propName] = $record->$propName ?? null;
+                }
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'data' => $data,
+            ]);
+            break;
+            
         default:
             throw new Exception('Invalid action');
     }

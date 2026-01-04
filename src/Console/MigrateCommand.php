@@ -102,7 +102,7 @@ Examples:
      */
     private static function syncModel(string $modelClass, array $info): void
     {
-        self::output("📦 {$info['shortName']} → {$info['table']}\n", 'blue');
+        self::output("📦 {$info['shortName']} → {$info['tableName']}\n", 'blue');
 
         try {
             $result = Schema::sync($modelClass);
@@ -141,7 +141,7 @@ Examples:
         }
 
         foreach ($models as $modelClass => $info) {
-            self::output("📦 {$info['shortName']} → {$info['table']}\n", 'blue');
+            self::output("📦 {$info['shortName']} → {$info['tableName']}\n", 'blue');
 
             try {
                 $diff = Schema::diff($modelClass);
@@ -204,14 +204,14 @@ Examples:
         foreach ($models as $modelClass => $info) {
             try {
                 // Drop table
-                $db->exec("DROP TABLE IF EXISTS {$info['table']}");
-                self::output("   ✓ Dropped: {$info['table']}\n", 'green');
+                $db->exec("DROP TABLE IF EXISTS {$info['tableName']}");
+                self::output("   ✓ Dropped: {$info['tableName']}\n", 'green');
 
                 // Recreate
                 Schema::create($modelClass);
-                self::output("   ✓ Created: {$info['table']}\n", 'green');
+                self::output("   ✓ Created: {$info['tableName']}\n", 'green');
             } catch (\Exception $e) {
-                self::output("   ✗ Error with {$info['table']}: " . $e->getMessage() . "\n", 'red');
+                self::output("   ✗ Error with {$info['tableName']}: " . $e->getMessage() . "\n", 'red');
             }
         }
 
