@@ -1167,6 +1167,53 @@ $currentUser = $_SESSION['proxima_admin_user'];
             }
         });
         
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', () => {
+            const params = new URLSearchParams(window.location.search);
+            const model = params.get('model');
+            const modelName = params.get('modelName');
+            const recordId = params.get('recordId');
+            
+            if (model && modelName && recordId) {
+                // Navigate to record detail view
+                currentModel = model;
+                currentRecordId = parseInt(recordId);
+                document.getElementById('pageTitle').textContent = modelName + ' - Record #' + recordId;
+                document.getElementById('backBtn').style.display = 'inline-block';
+                document.getElementById('syncAllBtn').style.display = 'none';
+                document.getElementById('freshBtn').style.display = 'none';
+                document.getElementById('dashboardView').style.display = 'none';
+                document.getElementById('modelDataView').style.display = 'none';
+                document.getElementById('detailView').style.display = 'block';
+                // Load record data
+                viewRecord(currentRecordId, false);
+            } else if (model && modelName) {
+                // Navigate to model data view
+                currentModel = model;
+                currentRecordId = null;
+                currentPage = params.get('page') ? parseInt(params.get('page')) : 1;
+                document.getElementById('pageTitle').textContent = modelName + ' Records';
+                document.getElementById('backBtn').style.display = 'inline-block';
+                document.getElementById('syncAllBtn').style.display = 'none';
+                document.getElementById('freshBtn').style.display = 'none';
+                document.getElementById('dashboardView').style.display = 'none';
+                document.getElementById('modelDataView').style.display = 'block';
+                document.getElementById('detailView').style.display = 'none';
+                loadModelData();
+            } else {
+                // Navigate back to dashboard
+                currentModel = null;
+                currentRecordId = null;
+                document.getElementById('pageTitle').textContent = 'Database Management';
+                document.getElementById('backBtn').style.display = 'none';
+                document.getElementById('syncAllBtn').style.display = 'inline-block';
+                document.getElementById('freshBtn').style.display = 'inline-block';
+                document.getElementById('dashboardView').style.display = 'block';
+                document.getElementById('modelDataView').style.display = 'none';
+                document.getElementById('detailView').style.display = 'none';
+            }
+        });
+        
         // Restore state from URL parameters
         function restoreStateFromURL() {
             const params = new URLSearchParams(window.location.search);
@@ -1188,7 +1235,7 @@ $currentUser = $_SESSION['proxima_admin_user'];
         }
         
         // Update URL without page reload
-        function updateURL(model = null, modelName = null, page = null) {
+        function updateURL(model = null, modelName = null, page = null, recordId = null) {
             const params = new URLSearchParams(window.location.search);
             
             // Keep token
@@ -1200,6 +1247,7 @@ $currentUser = $_SESSION['proxima_admin_user'];
                 newParams.set('model', model);
                 newParams.set('modelName', modelName);
                 if (page) newParams.set('page', page);
+                if (recordId) newParams.set('recordId', recordId);
             }
             
             const newURL = window.location.pathname + '?' + newParams.toString();
@@ -1334,8 +1382,8 @@ $currentUser = $_SESSION['proxima_admin_user'];
                     <td>
                         ${statusBadge}
                     </td>
-                    <td style="display: flex; gap: 6px;">
-                        ${actionButtons}
+                    <td>
+                        <div style="display: flex; gap: 6px;">${actionButtons}</div>
                     </td>
                 </tr>
             `;
@@ -1470,11 +1518,13 @@ $currentUser = $_SESSION['proxima_admin_user'];
         function showDashboard() {
             document.getElementById('dashboardView').style.display = 'block';
             document.getElementById('modelDataView').style.display = 'none';
+            document.getElementById('detailView').style.display = 'none';
             document.getElementById('pageTitle').textContent = 'Database Management';
             document.getElementById('backBtn').style.display = 'none';
             document.getElementById('syncAllBtn').style.display = 'inline-block';
             document.getElementById('freshBtn').style.display = 'inline-block';
             currentModel = null;
+            currentRecordId = null;
             updateURL(); // Clear URL params
         }
         
@@ -2096,14 +2146,28 @@ $currentUser = $_SESSION['proxima_admin_user'];
         }
         
         // View Record Detail
-        async function viewRecord(recordId) {
+        async function viewRecord(recordId, updateUrl = true) {
             if (!currentModel || !recordId) return;
+            
+            currentRecordId = recordId;
+            
+            // Get model name from current page title or modelsData
+            const modelData = modelsData.find(m => m.className === currentModel);
+            const modelName = modelData ? modelData.shortName : currentModel.split('\\').pop();
+            
+            // Update page title
+            document.getElementById('pageTitle').textContent = modelName + ' - Record #' + recordId;
             
             // Hide model data view, show detail view
             document.getElementById('dashboardView').style.display = 'none';
             document.getElementById('modelDataView').style.display = 'none';
             document.getElementById('detailView').style.display = 'block';
             document.getElementById('detailTableBody').innerHTML = '<tr><td colspan="2" class="loading">Loading record...</td></tr>';
+            
+            // Update URL with recordId
+            if (updateUrl) {
+                updateURL(currentModel, modelName, currentPage, recordId);
+            }
             
             try {
                 // Get record data
@@ -2168,9 +2232,21 @@ $currentUser = $_SESSION['proxima_admin_user'];
         }
         
         function backToModelData() {
+            // Get model name from modelsData
+            const modelData = modelsData.find(m => m.className === currentModel);
+            const modelName = modelData ? modelData.shortName : currentModel.split('\\').pop();
+            
+            // Update page title
+            document.getElementById('pageTitle').textContent = modelName + ' Records';
+            
+            // Hide detail view, show model data view
             document.getElementById('dashboardView').style.display = 'none';
             document.getElementById('detailView').style.display = 'none';
             document.getElementById('modelDataView').style.display = 'block';
+            
+            // Clear recordId and update URL
+            currentRecordId = null;
+            updateURL(currentModel, modelName, currentPage);
         }
     </script>
 </body>
