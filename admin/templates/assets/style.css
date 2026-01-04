@@ -895,21 +895,119 @@ a {
 }
 
 /* ===== UTILITIES ===== */
-.text-danger { color: #ef4444; }
-.text-success { color: #22c55e; }
-.text-warning { color: #f97316; }
-.text-muted { color: #52525b; }
+.text-danger {
+    color: #ef4444;
+}
 
-.mt-1 { margin-top: 8px; }
-.mt-2 { margin-top: 16px; }
-.mt-3 { margin-top: 24px; }
-.mb-1 { margin-bottom: 8px; }
-.mb-2 { margin-bottom: 16px; }
-.mb-3 { margin-bottom: 24px; }
+.text-success {
+    color: #22c55e;
+}
 
-.gap-1 { gap: 8px; }
-.gap-2 { gap: 16px; }
+.text-warning {
+    color: #f97316;
+}
 
-.flex { display: flex; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
+.text-muted {
+    color: #52525b;
+}
+
+.mt-1 {
+    margin-top: 8px;
+}
+
+.mt-2 {
+    margin-top: 16px;
+}
+
+.mt-3 {
+    margin-top: 24px;
+}
+
+.mb-1 {
+    margin-bottom: 8px;
+}
+
+.mb-2 {
+    margin-bottom: 16px;
+}
+
+.mb-3 {
+    margin-bottom: 24px;
+}
+
+.gap-1 {
+    gap: 8px;
+}
+
+.gap-2 {
+    gap: 16px;
+}
+
+.flex {
+    display: flex;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+/* ===== TABLE SCROLL CONTAINER ===== */
+.table-scroll-container {
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+/* Custom Scrollbar - Dark Theme */
+.table-scroll-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-scroll-container::-webkit-scrollbar-track {
+    background: #09090b;
+    border-radius: 4px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb {
+    background: #3f3f46;
+    border-radius: 4px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #52525b;
+}
+
+/* Firefox scrollbar */
+.table-scroll-container {
+    scrollbar-width: thin;
+    scrollbar-color: #3f3f46 #09090b;
+}
+
+/* Sticky Actions Column */
+.th-actions,
+.td-actions {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background: #18181b;
+    text-align: center;
+    white-space: nowrap;
+    min-width: 130px;
+    border-right: 1px solid #27272a;
+}
+
+.th-actions {
+    background: #09090b;
+}
+
+.data-table tbody tr:hover .td-actions {
+    background: #27272a;
+}
+
+/* Table min-width for scrollable behavior */
+.table-scroll-container .data-table {
+    min-width: 800px;
+}

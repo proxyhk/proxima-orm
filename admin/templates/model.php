@@ -114,53 +114,55 @@ include __DIR__ . '/includes/header.php';
 
 <!-- Data Table -->
 <div class="card">
-    <table class="data-table">
-        <thead>
-            <tr>
-                <?php foreach ($columns as $col): ?>
-                    <th><?= e($col) ?></th>
-                <?php endforeach; ?>
-                <th style="width: 140px; text-align: center;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if (empty($records)): ?>
+    <div class="table-scroll-container">
+        <table class="data-table">
+            <thead>
                 <tr>
-                    <td colspan="<?= count($columns) + 1 ?>">
-                        <div class="empty-state">
-                            <div class="empty-icon">📭</div>
-                            <div class="empty-title">No Records Found</div>
-                            <div class="empty-text">
-                                <?php if ($search !== ''): ?>
-                                    No records match your search criteria
-                                <?php else: ?>
-                                    This table is empty. <a href="create.php?class=<?= urlencode($modelClass) ?>">Create a new record</a>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </td>
+                    <th class="th-actions">Actions</th>
+                    <?php foreach ($columns as $col): ?>
+                        <th><?= e($col) ?></th>
+                    <?php endforeach; ?>
                 </tr>
-            <?php else: ?>
-                <?php foreach ($records as $row): ?>
-                    <?php $recordId = $row['id'] ?? $row[$columns[0]] ?? null; ?>
+            </thead>
+            <tbody>
+                <?php if (empty($records)): ?>
                     <tr>
-                        <?php foreach ($columns as $col): ?>
-                            <td title="<?= e($row[$col]) ?>"><?= formatValue($row[$col]) ?></td>
-                        <?php endforeach; ?>
-                        <td style="text-align: center;">
-                            <a href="record.php?class=<?= urlencode($modelClass) ?>&id=<?= $recordId ?>" 
-                               class="action-btn view" title="View Details">👁️</a>
-                            <a href="edit.php?class=<?= urlencode($modelClass) ?>&id=<?= $recordId ?>" 
-                               class="action-btn edit" title="Edit">✏️</a>
-                            <a href="actions.php?action=delete_record&class=<?= urlencode($modelClass) ?>&id=<?= $recordId ?>" 
-                               class="action-btn delete" title="Delete"
-                               onclick="return confirmDelete()">🗑️</a>
+                        <td colspan="<?= count($columns) + 1 ?>">
+                            <div class="empty-state">
+                                <div class="empty-icon">📭</div>
+                                <div class="empty-title">No Records Found</div>
+                                <div class="empty-text">
+                                    <?php if ($search !== ''): ?>
+                                        No records match your search criteria
+                                    <?php else: ?>
+                                        This table is empty. <a href="create.php?class=<?= urlencode($modelClass) ?>">Create a new record</a>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </td>
                     </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </tbody>
-    </table>
+                <?php else: ?>
+                    <?php foreach ($records as $row): ?>
+                        <?php $recordId = $row['id'] ?? $row[$columns[0]] ?? null; ?>
+                        <tr>
+                            <td class="td-actions">
+                                <a href="record.php?class=<?= urlencode($modelClass) ?>&id=<?= $recordId ?>" 
+                                   class="action-btn view" title="View Details">👁️</a>
+                                <a href="edit.php?class=<?= urlencode($modelClass) ?>&id=<?= $recordId ?>" 
+                                   class="action-btn edit" title="Edit">✏️</a>
+                                <a href="actions.php?action=delete_record&class=<?= urlencode($modelClass) ?>&id=<?= $recordId ?>" 
+                                   class="action-btn delete" title="Delete"
+                                   onclick="return confirmDelete()">🗑️</a>
+                            </td>
+                            <?php foreach ($columns as $col): ?>
+                                <td title="<?= e($row[$col]) ?>"><?= formatValue($row[$col]) ?></td>
+                            <?php endforeach; ?>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Pagination -->
