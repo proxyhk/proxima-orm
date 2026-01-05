@@ -6,7 +6,7 @@
  */
 
 // Current admin panel version
-define('PROXIMA_ADMIN_VERSION', '1.0.36');
+define('PROXIMA_ADMIN_VERSION', '1.0.37');
 
 // List of files to copy during update
 define('PROXIMA_ADMIN_FILES', [
